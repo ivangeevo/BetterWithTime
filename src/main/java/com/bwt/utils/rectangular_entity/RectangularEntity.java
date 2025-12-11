@@ -30,13 +30,8 @@ public abstract class RectangularEntity extends Entity {
     }
 
     @Override
-    protected Box calculateBoundingBox() {
+    protected Box calculateDefaultBoundingBox(Vec3d pos) {
         EntityRectDimensions dimensions = this.getRectDimensions();
-        return dimensions.getBoxAt(getPos(), getYaw()).offset(0, -1 * (dimensions.height() / 2), 0);
-    }
-
-    @Override
-    public Box getVisibilityBoundingBox() {
-        return super.getVisibilityBoundingBox();
+        return dimensions.getBoxAt(pos, getYaw()).offset(0, -1 * (dimensions.height() / 2), 0);
     }
 }

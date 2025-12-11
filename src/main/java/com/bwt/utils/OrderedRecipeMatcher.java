@@ -8,10 +8,7 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class OrderedRecipeMatcher {
@@ -20,7 +17,7 @@ public class OrderedRecipeMatcher {
             CraftingRecipeInput input,
             List<RecipeType<? extends CraftingRecipe>> recipeTypes
     ) {
-        RecipeManager recipeManager = world.getRecipeManager();
+        ServerRecipeManager recipeManager = Objects.requireNonNull(world.getServer()).getRecipeManager();
         for (RecipeType<? extends CraftingRecipe> recipeType: recipeTypes) {
             Optional<? extends RecipeEntry<? extends CraftingRecipe>> optionalResult = recipeManager.getFirstMatch(recipeType, input, world);
             if (optionalResult.isPresent()) {
@@ -37,9 +34,9 @@ public class OrderedRecipeMatcher {
     ) {
         Optional<? extends RecipeEntry<? extends CraftingRecipe>> optional = getFirstRecipeOfMultipleTypes(world, input, recipeTypes);
         if (optional.isPresent()) {
-            return optional.get().value().getRemainder(input);
+            return optional.get().value().getRecipeRemainders(input);
         } else {
-            DefaultedList<ItemStack> defaultedList = DefaultedList.ofSize(input.getSize(), ItemStack.EMPTY);
+            DefaultedList<ItemStack> defaultedList = DefaultedList.ofSize(input.size(), ItemStack.EMPTY);
 
             for (int i = 0; i < defaultedList.size(); i++) {
                 defaultedList.set(i, input.getStackInSlot(i));

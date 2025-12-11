@@ -399,7 +399,7 @@ public class MovingRopeEntity extends RectangularEntity implements VoxelShapedEn
             world.removeBlockEntity(pos);
             setBlockEntityNbtMap(blockEntities);
         }
-        if (!world.isClient) {
+        if (!world.isClient()) {
             setBlockMap(blocks);
         }
         return blocks;

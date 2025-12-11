@@ -5,6 +5,7 @@ import com.bwt.blocks.BwtBlocks;
 import com.bwt.entities.HorizontalMechPowerSourceEntity;
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -37,15 +38,17 @@ public class HorizontalMechPowerSourceItem extends Item {
             return ActionResult.FAIL;
         }
 
+        Direction.AxisDirection axisDirection = Direction.AxisDirection.POSITIVE;
+        PlayerEntity playerEntity = context.getPlayer();
         Vec3d middleOfAxle = blockPos.toCenterPos();
-        Vec3d playerPos = context.getPlayer().getPos();
-        Vec3d difference = playerPos.subtract(middleOfAxle);
-        Direction placementDirection = Direction.from(
-                axleAxis,
-                axleAxis.choose(difference.getX(), difference.getY(), difference.getZ()) > 0
-                        ? Direction.AxisDirection.POSITIVE
-                        : Direction.AxisDirection.NEGATIVE
-        );
+        if (playerEntity != null) {
+            Vec3d playerPos = playerEntity.getEntityPos();
+            Vec3d difference = playerPos.subtract(middleOfAxle);
+            axisDirection = axleAxis.choose(difference.getX(), difference.getY(), difference.getZ()) > 0
+                    ? Direction.AxisDirection.POSITIVE
+                    : Direction.AxisDirection.NEGATIVE;
+        }
+        Direction placementDirection = Direction.from(axleAxis, axisDirection);
 
         HorizontalMechPowerSourceEntity mechPowerSourceEntity = entityFactory.create(world, middleOfAxle, placementDirection);
 

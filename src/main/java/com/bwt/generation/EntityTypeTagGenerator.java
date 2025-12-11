@@ -15,7 +15,7 @@ public class EntityTypeTagGenerator extends FabricTagProvider.EntityTypeTagProvi
 
     @Override
     protected void configure(RegistryWrapper.WrapperLookup arg) {
-        getOrCreateTagBuilder(BwtEntityTags.BLOCK_DISPENSER_INHALE_ENTITIES)
+        valueLookupBuilder(BwtEntityTags.BLOCK_DISPENSER_INHALE_ENTITIES)
                 .add(EntityType.WOLF)
                 .add(EntityType.CHICKEN)
                 .add(EntityType.SHEEP)

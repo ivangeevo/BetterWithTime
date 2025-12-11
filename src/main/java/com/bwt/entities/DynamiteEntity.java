@@ -46,9 +46,10 @@ public class DynamiteEntity extends ProjectileEntity implements FlyingItemEntity
         this.setPosition(x, y, z);
     }
 
-    public DynamiteEntity(World world, LivingEntity owner) {
+    public DynamiteEntity(World world, LivingEntity owner, ItemStack stack) {
         this(owner.getX(), owner.getEyeY() - (double)0.1f, owner.getZ(), world);
         this.setOwner(owner);
+        this.setItem(stack);
     }
 
     @Override

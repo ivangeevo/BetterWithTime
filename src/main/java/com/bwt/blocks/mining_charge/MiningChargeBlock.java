@@ -103,11 +103,11 @@ public class MiningChargeBlock extends WallMountedBlock implements ICaughtFireBl
     }
 
     @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @org.jspecify.annotations.Nullable WireOrientation wireOrientation, boolean notify) {
         if (world.isReceivingRedstonePower(pos)) {
             world.scheduleBlockTick(pos, this, 1);
         }
-        if (world.isClient || !world.getBlockState(pos).isOf(this)) {
+        if (world.isClient() || !world.getBlockState(pos).isOf(this)) {
             return;
         }
         if (canPlaceAt(state, world, pos)) {
@@ -137,7 +137,7 @@ public class MiningChargeBlock extends WallMountedBlock implements ICaughtFireBl
             return;
         }
         world.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL);
-        if (world.isClient) {
+        if (world.isClient()) {
             return;
         }
         MiningChargeEntity miningChargeEntity = new MiningChargeEntity(world, pos.toCenterPos().subtract(0, 0.5, 0), state, explosion.getCausingEntity());
@@ -146,7 +146,7 @@ public class MiningChargeBlock extends WallMountedBlock implements ICaughtFireBl
     }
 
     private static void prime(World world, BlockPos pos, BlockState state, @Nullable LivingEntity igniter) {
-        if (world.isClient) {
+        if (world.isClient()) {
             return;
         }
         MiningChargeEntity miningChargeEntity = new MiningChargeEntity(world, pos.toCenterPos().subtract(0, 0.5, 0), state, igniter);
@@ -172,12 +172,12 @@ public class MiningChargeBlock extends WallMountedBlock implements ICaughtFireBl
             }
         }
         player.incrementStat(Stats.USED.getOrCreateStat(item));
-        return ActionResult.success(world.isClient);
+        return ActionResult.success(world.isClient());
     }
 
     @Override
     public void onProjectileHit(World world, BlockState state, BlockHitResult hit, ProjectileEntity projectile) {
-        if (!world.isClient) {
+        if (!world.isClient()) {
             BlockPos blockPos = hit.getBlockPos();
             Entity entity = projectile.getOwner();
             if (projectile.isOnFire() && projectile.canModifyAt(world, blockPos)) {

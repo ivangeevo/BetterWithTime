@@ -69,8 +69,8 @@ public class ItemTagGenerator extends FabricTagProvider.ItemTagProvider {
         copy(BwtBlockTags.WOOL_SLABS, BwtItemTags.WOOL_SLABS);
         copyIgnoreMissing(BwtBlockTags.NETHER_GROTH_CAN_EAT, BwtItemTags.NETHER_GROTH_CAN_EAT);
 
-        getOrCreateTagBuilder(BwtItemTags.SAW_DUSTS).add(BwtItems.sawDustItem, BwtItems.soulDustItem);
-        getOrCreateTagBuilder(BwtItemTags.MINING_CHARGE_IMMUNE)
+        valueLookupBuilder(BwtItemTags.SAW_DUSTS).add(BwtItems.sawDustItem, BwtItems.soulDustItem);
+        valueLookupBuilder(BwtItemTags.MINING_CHARGE_IMMUNE)
                 .forceAddTag(ConventionalItemTags.ORES)
                 .forceAddTag(ConventionalItemTags.RAW_MATERIALS)
                 .forceAddTag(ConventionalItemTags.REDSTONE_DUSTS)
@@ -82,18 +82,18 @@ public class ItemTagGenerator extends FabricTagProvider.ItemTagProvider {
                 .add(Items.FLINT)
                 .add(Items.ANCIENT_DEBRIS);
 
-        getOrCreateTagBuilder(ItemTags.ARROWS).add(BwtItems.broadheadArrowItem, BwtItems.rottedArrowItem);
+        valueLookupBuilder(ItemTags.ARROWS).add(BwtItems.broadheadArrowItem, BwtItems.rottedArrowItem);
 
-        getOrCreateTagBuilder(ItemTags.WOOL).add(BwtBlocks.companionSlabBlock.asItem());
+        valueLookupBuilder(ItemTags.WOOL).add(BwtBlocks.companionSlabBlock.asItem());
 
-        getOrCreateTagBuilder(ConventionalItemTags.RAW_MEAT_FOODS).add(BwtItems.wolfChopItem);
-        getOrCreateTagBuilder(ConventionalItemTags.COOKED_MEAT_FOODS).add(BwtItems.cookedWolfChopItem);
+        valueLookupBuilder(ConventionalItemTags.RAW_MEAT_FOODS).add(BwtItems.wolfChopItem);
+        valueLookupBuilder(ConventionalItemTags.COOKED_MEAT_FOODS).add(BwtItems.cookedWolfChopItem);
 
-        getOrCreateTagBuilder(ItemTags.PICKAXES).add(BwtItems.netheriteMattockItem);
-        getOrCreateTagBuilder(ItemTags.SHOVELS).add(BwtItems.netheriteMattockItem);
-        getOrCreateTagBuilder(ItemTags.AXES).add(BwtItems.netheriteBattleAxeItem);
-        getOrCreateTagBuilder(ItemTags.SWORDS).add(BwtItems.netheriteBattleAxeItem);
-        getOrCreateTagBuilder(ItemTags.BOW_ENCHANTABLE).add(BwtItems.compositeBowItem);
+        valueLookupBuilder(ItemTags.PICKAXES).add(BwtItems.netheriteMattockItem);
+        valueLookupBuilder(ItemTags.SHOVELS).add(BwtItems.netheriteMattockItem);
+        valueLookupBuilder(ItemTags.AXES).add(BwtItems.netheriteBattleAxeItem);
+        valueLookupBuilder(ItemTags.SWORDS).add(BwtItems.netheriteBattleAxeItem);
+        valueLookupBuilder(ItemTags.BOW_ENCHANTABLE).add(BwtItems.compositeBowItem);
 
         addHopperFilters();
     }
@@ -107,14 +107,14 @@ public class ItemTagGenerator extends FabricTagProvider.ItemTagProvider {
     }
 
     protected void addHopperFilters() {
-        getOrCreateTagBuilder(BwtItemTags.STOKED_EXPLOSIVES)
+        valueLookupBuilder(BwtItemTags.STOKED_EXPLOSIVES)
                 .add(
                         BwtItems.hellfireDustItem,
                         Items.GUNPOWDER,
                         Items.TNT
                 );
 
-        getOrCreateTagBuilder(BwtItemTags.PASSES_WICKER_FILTER)
+        valueLookupBuilder(BwtItemTags.PASSES_WICKER_FILTER)
                 .add(
                         Items.BLAZE_POWDER,
                         BwtItems.coalDustItem,
@@ -154,7 +154,7 @@ public class ItemTagGenerator extends FabricTagProvider.ItemTagProvider {
                         Items.SUGAR
                 );
 
-        getOrCreateTagBuilder(BwtItemTags.PASSES_SLATS_FILTER)
+        valueLookupBuilder(BwtItemTags.PASSES_SLATS_FILTER)
                 .addTag(BwtItemTags.PASSES_WICKER_FILTER)
                 .forceAddTag(ItemTags.TRIM_TEMPLATES)
                 .add(
@@ -177,7 +177,7 @@ public class ItemTagGenerator extends FabricTagProvider.ItemTagProvider {
                         Items.DRIED_KELP
                 );
 
-        getOrCreateTagBuilder(BwtItemTags.PASSES_GRATE_FILTER)
+        valueLookupBuilder(BwtItemTags.PASSES_GRATE_FILTER)
                 .forceAddTag(ItemTags.FLOWERS)
                 .add(
                         Items.APPLE,
@@ -268,7 +268,7 @@ public class ItemTagGenerator extends FabricTagProvider.ItemTagProvider {
                         Items.POPPED_CHORUS_FRUIT
             );
 
-        getOrCreateTagBuilder(BwtItemTags.PASSES_TRAPDOOR_FILTER)
+        valueLookupBuilder(BwtItemTags.PASSES_TRAPDOOR_FILTER)
                 .addTag(BwtItemTags.PASSES_GRATE_FILTER)
                 .forceAddTag(ItemTags.ARROWS)
                 .add(
@@ -295,7 +295,7 @@ public class ItemTagGenerator extends FabricTagProvider.ItemTagProvider {
                         Items.SKULL_BANNER_PATTERN
                 );
 
-        getOrCreateTagBuilder(BwtItemTags.PASSES_IRON_BARS_FILTER)
+        valueLookupBuilder(BwtItemTags.PASSES_IRON_BARS_FILTER)
                 .addTag(BwtItemTags.PASSES_GRATE_FILTER)
                 .forceAddTag(ItemTags.CANDLES)
                 .forceAddTag(ConventionalItemTags.POTIONS)
@@ -405,7 +405,7 @@ public class ItemTagGenerator extends FabricTagProvider.ItemTagProvider {
                 );
 
 
-        getOrCreateTagBuilder(BwtItemTags.PASSES_LADDER_FILTER)
+        valueLookupBuilder(BwtItemTags.PASSES_LADDER_FILTER)
                 .addTag(BwtItemTags.PASSES_IRON_BARS_FILTER)
                 .forceAddTag(ItemTags.TRIMMABLE_ARMOR)
                 .forceAddTag(ItemTags.BEDS)

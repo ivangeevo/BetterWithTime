@@ -97,7 +97,7 @@ public class PulleyBlockEntity extends BlockEntity implements NamedScreenHandler
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, PulleyBlockEntity blockEntity) {
-        if (world.isClient) {
+        if (world.isClient()) {
             return;
         }
         blockEntity.tryNextOperation(world, pos, state);
@@ -219,7 +219,7 @@ public class PulleyBlockEntity extends BlockEntity implements NamedScreenHandler
         }
 
 
-        if (!world.isClient) {
+        if (!world.isClient()) {
             for (BlockPos blockPos : platformBlocks) {
                 Vec3i offset = blockPos.subtract(anchor.up());
                 rope.addBlock(offset, world, blockPos, world.getBlockState(blockPos));

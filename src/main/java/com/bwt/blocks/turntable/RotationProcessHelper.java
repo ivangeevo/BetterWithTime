@@ -83,7 +83,7 @@ public interface RotationProcessHelper {
 
         if ((flags & Block.NOTIFY_NEIGHBORS) != 0) {
             world.updateNeighbors(pos, block);
-            if (!world.isClient && state.hasComparatorOutput()) {
+            if (!world.isClient() && state.hasComparatorOutput()) {
                 world.updateComparators(pos, block);
             }
         }

@@ -5,7 +5,6 @@ import com.bwt.blocks.BwtBlocks;
 import com.bwt.blocks.block_dispenser.behavior.dispense.*;
 import com.bwt.blocks.block_dispenser.behavior.inhale.BlockInhaleBehavior;
 import com.bwt.blocks.block_dispenser.behavior.inhale.EntityInhaleBehavior;
-import com.bwt.blocks.block_dispenser.behavior.inhale.VoidInhaleBehavior;
 import com.bwt.blocks.mining_charge.MiningChargeBlock;
 import com.bwt.blocks.unfired_pottery.UnfiredDecoratedPotBlockEntity;
 import com.bwt.entities.MiningChargeEntity;
@@ -40,13 +39,11 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class BlockDispenserBlock extends DispenserBlock {
@@ -159,9 +156,9 @@ public class BlockDispenserBlock extends DispenserBlock {
                     BlockPos blockPos = pointer.pos().offset(direction);
                     pointer.world().replaceWithStateForNeighborUpdate(
                             direction.getOpposite(),
-                            pointer.state(),
                             blockPos,
                             pointer.pos(),
+                            pointer.state(),
                             Block.NOTIFY_ALL & ~(Block.NOTIFY_NEIGHBORS | Block.SKIP_DROPS),
                             511
                     );
@@ -196,7 +193,7 @@ public class BlockDispenserBlock extends DispenserBlock {
                 if (!(blockEntity instanceof UnfiredDecoratedPotBlockEntity unfiredDecoratedPotBlockEntity)) {
                     return stack;
                 }
-                if (!world.isClient && unfiredDecoratedPotBlockEntity.tryAddSherd(side, stack.getItem())) {
+                if (!world.isClient() && unfiredDecoratedPotBlockEntity.tryAddSherd(side, stack.getItem())) {
                     stack.decrement(1);
                 }
                 return stack;
@@ -261,14 +258,8 @@ public class BlockDispenserBlock extends DispenserBlock {
     }
 
     @Override
-    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        ItemScatterer.onStateReplaced(state, newState, world, pos);
-        super.onStateReplaced(state, world, pos, newState, moved);
-    }
-
-    @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        if (world.isClient) {
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @org.jspecify.annotations.Nullable WireOrientation wireOrientation, boolean notify) {
+        if (world.isClient()) {
             return;
         }
         if (state.get(TRIGGERED) != isReceivingPower(world, pos, state.get(FACING))) {
@@ -278,7 +269,7 @@ public class BlockDispenserBlock extends DispenserBlock {
 
     @Override
     protected ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity player, BlockHitResult hit) {
-        if (world.isClient) return ActionResult.SUCCESS;
+        if (world.isClient()) return ActionResult.SUCCESS;
         world.getBlockEntity(blockPos, BwtBlockEntities.blockDispenserBlockEntity).ifPresent(player::openHandledScreen);
         return ActionResult.CONSUME;
     }
@@ -336,7 +327,7 @@ public class BlockDispenserBlock extends DispenserBlock {
         Optional<? extends Entity> optionalEntity = this.getInhaleableEntity(world, targetPos);
         if (optionalEntity.isPresent()) {
             Entity entity = optionalEntity.get();
-            inhaleEntity(blockEntity, entity);
+            inhaleEntity(world, blockEntity, entity);
             return;
         }
 
@@ -367,7 +358,7 @@ public class BlockDispenserBlock extends DispenserBlock {
         }
 
         BlockDispenserClumpRecipeInput recipeInput = new BlockDispenserClumpRecipeInput(entity.getItems());
-        Optional<BlockDispenserClumpRecipe> match = world.getRecipeManager().getFirstMatch(
+        Optional<BlockDispenserClumpRecipe> match = Objects.requireNonNull(world.getServer()).getRecipeManager().getFirstMatch(
                 BwtRecipes.BLOCK_DISPENSER_CLUMP_RECIPE_TYPE,
                 recipeInput,
                 world
@@ -401,7 +392,7 @@ public class BlockDispenserBlock extends DispenserBlock {
         return entities.stream().findAny();
     }
 
-    protected <T extends Entity> void inhaleEntity(BlockDispenserBlockEntity blockEntity, T entity) {
+    protected <T extends Entity> void inhaleEntity(ServerWorld serverWorld, BlockDispenserBlockEntity blockEntity, T entity) {
         EntityInhaleBehavior entityInhaleBehavior = ENTITY_INHALE_BEHAVIORS.get(entity.getType());
         ItemStack inhaledItems = entityInhaleBehavior.getInhaledItems(entity).copy();
         if (!blockEntity.hasRoomFor(inhaledItems)) {
@@ -409,7 +400,7 @@ public class BlockDispenserBlock extends DispenserBlock {
         }
         entityInhaleBehavior.inhale(entity);
         blockEntity.insert(inhaledItems);
-        entityInhaleBehavior.getDroppedItems(entity).forEach(entity::dropStack);
+        entityInhaleBehavior.getDroppedItems(entity).forEach(stack -> entity.dropStack(serverWorld, stack));
     }
 
     protected BlockInhaleBehavior getInhaleBehaviorForItem(BlockState targetState) {

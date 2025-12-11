@@ -47,7 +47,7 @@ public class BuddyBlock extends SimpleFacingBlock implements RotateWithEmptyHand
         if (state.isOf(newState.getBlock())) {
             return;
         }
-        if (!world.isClient && state.get(POWERED) && world.getBlockTickScheduler().isTicking(pos, this)) {
+        if (!world.isClient() && state.get(POWERED) && world.getBlockTickScheduler().isTicking(pos, this)) {
             this.updateNeighbors(world, pos, state.with(POWERED, false));
         }
     }

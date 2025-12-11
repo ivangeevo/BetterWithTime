@@ -18,5 +18,5 @@ public class AxlePowerSourceBlock extends AxleBlock {
     }
 
     @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {}
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @org.jspecify.annotations.Nullable WireOrientation wireOrientation, boolean notify) {}
 }

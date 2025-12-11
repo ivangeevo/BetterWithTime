@@ -3,24 +3,22 @@ package com.bwt.items;
 import com.bwt.blocks.BwtBlocks;
 import com.bwt.entities.WaterWheelEntity;
 import com.bwt.entities.WindmillEntity;
-import com.bwt.entities.CanvasEntity;
 import com.bwt.tags.BwtPaintingVariantTags;
-import com.bwt.utils.Id;
-import com.bwt.utils.LockableItemSettings;
+import com.bwt.utils.RegistrationUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ConsumableComponents;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.component.type.FoodComponents;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.decoration.painting.PaintingVariant;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.*;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.*;
+import net.minecraft.item.consume.ApplyEffectsConsumeEffect;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 
 import java.util.Comparator;
@@ -28,90 +26,127 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public class BwtItems implements ModInitializer {
-    public static final Item cementBucketItem = Registry.register(Registries.ITEM, Id.of("cement_bucket"), new CementBucketItem(new Item.Settings()));
-	public static final Item armorPlateItem = Registry.register(Registries.ITEM, Id.of("armor_plate"), new Item(new Item.Settings()));
-	public static final Item beltItem = Registry.register(Registries.ITEM, Id.of("belt"), new Item(new Item.Settings()));
-	public static final Item breedingHarnessItem = Registry.register(Registries.ITEM, Id.of("breeding_harness"), new Item(new Item.Settings()));
-	public static final Item broadheadItem = Registry.register(Registries.ITEM, Id.of("broadhead"), new Item(new Item.Settings()));
-	public static final Item broadheadArrowItem = Registry.register(Registries.ITEM, Id.of("broadhead_arrow"), new BroadheadArrowItem(new Item.Settings()));
-//	public static final Item candleItem = Registry.register(Registries.ITEM, Id.of("candle"), new CandleItem(new Item.Settings()));
-	public static final Item canvasItem = Registry.register(Registries.ITEM, Id.of("canvas"), new CanvasItem(new Item.Settings()));
-	public static final Item coalDustItem = Registry.register(Registries.ITEM, Id.of("coal_dust"), new Item(new Item.Settings()));
-	public static final Item compositeBowItem = Registry.register(Registries.ITEM, Id.of("composite_bow"), new CompositeBowItem(new Item.Settings().maxDamage(576)));
-	public static final Item concentratedHellfireItem = Registry.register(Registries.ITEM, Id.of("concentrated_hellfire"), new Item(new Item.Settings()));
-    public static final Item cookedWolfChopItem = Registry.register(Registries.ITEM, Id.of("cooked_wolf_chop"), new Item(
-            new Item.Settings()
-                    .food(FoodComponents.COOKED_PORKCHOP))
+    public static final Item cementBucketItem = RegistrationUtils.registerItem("cement_bucket", CementBucketItem::new);
+	public static final Item armorPlateItem = RegistrationUtils.registerItem("armor_plate");
+	public static final Item beltItem = RegistrationUtils.registerItem("belt");
+	public static final Item breedingHarnessItem = RegistrationUtils.registerItem("breeding_harness");
+	public static final Item broadheadItem = RegistrationUtils.registerItem("broadhead");
+	public static final Item broadheadArrowItem = RegistrationUtils.registerItem("broadhead_arrow", BroadheadArrowItem::new);
+//	public static final Item candleItem = RegistrationUtils.registerItem("candle", CandleItem::new);
+	public static final Item canvasItem = RegistrationUtils.registerItem("canvas", CanvasItem::new);
+	public static final Item coalDustItem = RegistrationUtils.registerItem("coal_dust");
+	public static final Item compositeBowItem = RegistrationUtils.registerItem("composite_bow", CompositeBowItem::new, new Item.Settings().maxDamage(576));
+	public static final Item concentratedHellfireItem = RegistrationUtils.registerItem("concentrated_hellfire");
+    public static final Item cookedWolfChopItem = RegistrationUtils.registerItem("cooked_wolf_chop", new Item.Settings().food(FoodComponents.COOKED_PORKCHOP));
+	public static final Item donutItem = RegistrationUtils.registerItem(
+            "donut",
+            new Item.Settings().food(
+                    new FoodComponent.Builder()
+                            .nutrition(1)
+                            .saturationModifier(0.5f)
+                            .alwaysEdible()
+                            .build(),
+                    ConsumableComponents.food().consumeSeconds(0.8F).build()
+            )
     );
-	public static final Item donutItem = Registry.register(Registries.ITEM, Id.of("donut"), new Item(new Item.Settings()
-            .food(new FoodComponent.Builder()
-                    .nutrition(1)
-                    .saturationModifier(0.5f)
-                    .snack()
-                    .alwaysEdible()
-                    .build())
-    ));
-	public static final DyeItem dungItem = Registry.register(Registries.ITEM, Id.of("dung"), new DungItem(new Item.Settings()));
-	public static final Item dynamiteItem = Registry.register(Registries.ITEM, Id.of("dynamite"), new DynamiteItem(new Item.Settings()));
-//	public static final Item enderSpectaclesItem = Registry.register(Registries.ITEM, Id.of("ender_spectacles"), new EnderSpectaclesItem(new Item.Settings()));
-	public static final Item fabricItem = Registry.register(Registries.ITEM, Id.of("fabric"), new Item(new Item.Settings()));
-	public static final Item filamentItem = Registry.register(Registries.ITEM, Id.of("filament"), new Item(new Item.Settings()));
-	public static final Item flourItem = Registry.register(Registries.ITEM, Id.of("flour"), new Item(new Item.Settings()));
-	public static final Item foulFoodItem = Registry.register(Registries.ITEM, Id.of("foul_food"), new Item(new Item.Settings()
-            .food(new FoodComponent.Builder()
-                    .nutrition(1)
-                    .statusEffect(new StatusEffectInstance(StatusEffects.POISON, 20 * 30, 0), 0.8f)
-                    .build())
-    ));
-    public static final Item friedEggItem = Registry.register(Registries.ITEM, Id.of("fried_egg"), new Item(new Item.Settings().food(new FoodComponent.Builder().nutrition(3).saturationModifier(0.25f).build())));
-//	public static final Item fuseItem = Registry.register(Registries.ITEM, Id.of("fuse"), new FuseItem(new Item.Settings()));
-	public static final Item gearItem = Registry.register(Registries.ITEM, Id.of("gear"), new Item(new Item.Settings()));
-	public static final Item glueItem = Registry.register(Registries.ITEM, Id.of("glue"), new Item(new Item.Settings()));
-	public static final Item groundNetherrackItem = Registry.register(Registries.ITEM, Id.of("ground_netherrack"), new Item(new Item.Settings()));
-	public static final Item haftItem = Registry.register(Registries.ITEM, Id.of("haft"), new Item(new Item.Settings()));
-	public static final Item hellfireDustItem = Registry.register(Registries.ITEM, Id.of("hellfire_dust"), new Item(new Item.Settings()));
-	public static final Item hempFiberItem = Registry.register(Registries.ITEM, Id.of("hemp_fiber"), new Item(new Item.Settings()));
-	public static final Item hempItem = Registry.register(Registries.ITEM, Id.of("hemp"), new Item(new Item.Settings()));
-	public static final Item hempSeedsItem = Registry.register(Registries.ITEM, Id.of("hemp_seeds"), new HempSeedsItem(BwtBlocks.hempCropBlock, new Item.Settings()));
-	public static final Item kibbleItem = Registry.register(Registries.ITEM, Id.of("kibble"), new Item(new Item.Settings()));
-//	public static final Item netherBrickItem = Registry.register(Registries.ITEM, Id.of("nether_brick"), new NetherBrickItem(new Item.Settings()));
-	public static final Item nethercoalItem = Registry.register(Registries.ITEM, Id.of("nethercoal"), new Item(new Item.Settings()));
-//	public static final Item nitreItem = Registry.register(Registries.ITEM, Id.of("nitre"), new NitreItem(new Item.Settings()));
-	public static final Item paddingItem = Registry.register(Registries.ITEM, Id.of("padding"), new Item(new Item.Settings()));
-	public static final Item poachedEggItem = Registry.register(Registries.ITEM, Id.of("poached_egg"), new Item(new Item.Settings().food(new FoodComponent.Builder().nutrition(3).saturationModifier(0.25f).build())));
-	public static final Item potashItem = Registry.register(Registries.ITEM, Id.of("potash"), new Item(new Item.Settings()));
-    public static final Item rawEggItem = Registry.register(Registries.ITEM, Id.of("raw_egg"), new Item(new Item.Settings().food(new FoodComponent.Builder().nutrition(2).saturationModifier(0.25f).build())));
-    public static final Item redstoneEyeItem = Registry.register(Registries.ITEM, Id.of("redstone_eye"), new Item(new Item.Settings()));
-    public static final Item netheriteMattockItem = Registry.register(Registries.ITEM, Id.of("netherite_mattock"), new MattockItem(ToolMaterials.NETHERITE, new Item.Settings().fireproof().attributeModifiers(PickaxeItem.createAttributeModifiers(ToolMaterials.NETHERITE, 1, -3.0f))));
-    public static final Item netheriteBattleAxeItem = Registry.register(Registries.ITEM, Id.of("netherite_battle_axe"), new BattleAxeItem(ToolMaterials.NETHERITE, new LockableItemSettings().attributeModifiers(AxeItem.createAttributeModifiers(ToolMaterials.NETHERITE, 3, -2.4f))));
-	public static final Item ropeItem = Registry.register(Registries.ITEM, Id.of("rope"), new RopeItem(new Item.Settings()));
-	public static final Item rottedArrowItem = Registry.register(Registries.ITEM, Id.of("rotted_arrow"), new RottedArrowItem(new Item.Settings()));
-	public static final Item sailItem = Registry.register(Registries.ITEM, Id.of("sail"), new Item(new Item.Settings().maxCount(1)));
-	public static final Item sawDustItem = Registry.register(Registries.ITEM, Id.of("saw_dust"), new Item(new Item.Settings()));
-	public static final Item scouredLeatherItem = Registry.register(Registries.ITEM, Id.of("scoured_leather"), new Item(new Item.Settings()));
-	public static final Item screwItem = Registry.register(Registries.ITEM, Id.of("screw"), new Item(new Item.Settings()));
-    public static final Item soapItem = Registry.register(Registries.ITEM, Id.of("soap"), new Item(new Item.Settings()));
-    public static final Item soulDustItem = Registry.register(Registries.ITEM, Id.of("soul_dust"), new Item(new Item.Settings()));
-	public static final Item soulUrnItem = Registry.register(Registries.ITEM, Id.of("soul_urn"), new SoulUrnItem(new Item.Settings()));
-	public static final Item strapItem = Registry.register(Registries.ITEM, Id.of("strap"), new Item(new Item.Settings()));
-	public static final Item tallowItem = Registry.register(Registries.ITEM, Id.of("tallow"), new Item(new Item.Settings()));
-	public static final Item tannedLeatherItem = Registry.register(Registries.ITEM, Id.of("tanned_leather"), new Item(new Item.Settings()));
-//	public static final Item tannedLeatherBootsItem = Registry.register(Registries.ITEM, Id.of("tanned_leather_boots"), new TannedLeatherBootsItem(new Item.Settings()));
-//	public static final Item tannedLeatherCapItem = Registry.register(Registries.ITEM, Id.of("tanned_leather_cap"), new TannedLeatherCapItem(new Item.Settings()));
-//	public static final Item tannedLeatherPantsItem = Registry.register(Registries.ITEM, Id.of("tanned_leather_pants"), new TannedLeatherPantsItem(new Item.Settings()));
-//	public static final Item tannedLeatherTunicItem = Registry.register(Registries.ITEM, Id.of("tanned_leather_tunic"), new TannedLeatherTunicItem(new Item.Settings()));
-    public static final Item waterWheelItem = Registry.register(Registries.ITEM, Id.of("water_wheel"), new HorizontalMechPowerSourceItem(
-            WaterWheelEntity::new,
-            new Item.Settings().maxCount(1)
-    ));
-    public static final Item windmillItem = Registry.register(Registries.ITEM, Id.of("windmill"), new HorizontalMechPowerSourceItem(
-            WindmillEntity::new,
-            new Item.Settings().maxCount(1)
-    ));
-	public static final Item wolfChopItem = Registry.register(Registries.ITEM, Id.of("wolf_chop"), new Item(
-            new Item.Settings().food(FoodComponents.PORKCHOP))
+	public static final DyeItem dungItem = RegistrationUtils.registerItem("dung", DungItem::new);
+	public static final Item dynamiteItem = RegistrationUtils.registerItem("dynamite", DynamiteItem::new, new Item.Settings().useCooldown(1f));
+//	public static final Item enderSpectaclesItem = RegistrationUtils.registerItem("ender_spectacles", EnderSpectaclesItem::new);
+	public static final Item fabricItem = RegistrationUtils.registerItem("fabric");
+	public static final Item filamentItem = RegistrationUtils.registerItem("filament");
+	public static final Item flourItem = RegistrationUtils.registerItem("flour");
+	public static final Item foulFoodItem = RegistrationUtils.registerItem(
+            "foul_food",
+            new Item.Settings().food(
+                    new FoodComponent.Builder()
+                            .nutrition(1)
+                            .build(),
+                    ConsumableComponents.food()
+                            .consumeEffect(new ApplyEffectsConsumeEffect(new StatusEffectInstance(StatusEffects.POISON, 20 * 30, 0), 0.8f))
+                            .build()
+            )
     );
-	public static final Item woodBladeItem = Registry.register(Registries.ITEM, Id.of("wood_blade"), new Item(new Item.Settings()));
+    public static final Item friedEggItem = RegistrationUtils.registerItem(
+            "fried_egg",
+            new Item.Settings().food(
+                    new FoodComponent.Builder()
+                            .nutrition(3)
+                            .saturationModifier(0.25f)
+                            .build()
+            )
+    );
+//	public static final Item fuseItem = RegistrationUtils.registerItem("fuse", FuseItem::new);
+	public static final Item gearItem = RegistrationUtils.registerItem("gear");
+	public static final Item glueItem = RegistrationUtils.registerItem("glue");
+	public static final Item groundNetherrackItem = RegistrationUtils.registerItem("ground_netherrack");
+	public static final Item haftItem = RegistrationUtils.registerItem("haft");
+	public static final Item hellfireDustItem = RegistrationUtils.registerItem("hellfire_dust");
+	public static final Item hempFiberItem = RegistrationUtils.registerItem("hemp_fiber");
+	public static final Item hempItem = RegistrationUtils.registerItem("hemp");
+	public static final Item hempSeedsItem = RegistrationUtils.registerUniqueBlockItem(BwtBlocks.hempCropBlock, "hemp_seeds");
+	public static final Item kibbleItem = RegistrationUtils.registerItem("kibble");
+//	public static final Item netherBrickItem = RegistrationUtils.registerItem("nether_brick", NetherBrickItem::new);
+	public static final Item nethercoalItem = RegistrationUtils.registerItem("nethercoal");
+//	public static final Item nitreItem = RegistrationUtils.registerItem("nitre", NitreItem::new);
+	public static final Item paddingItem = RegistrationUtils.registerItem("padding");
+	public static final Item poachedEggItem = RegistrationUtils.registerItem(
+            "poached_egg",
+            new Item.Settings().food(
+                    new FoodComponent.Builder()
+                            .nutrition(3)
+                            .saturationModifier(0.25f)
+                            .build()
+            )
+    );
+	public static final Item potashItem = RegistrationUtils.registerItem("potash");
+    public static final Item rawEggItem = RegistrationUtils.registerItem(
+            "raw_egg",
+            new Item.Settings().food(
+                    new FoodComponent.Builder()
+                            .nutrition(2)
+                            .saturationModifier(0.25f)
+                            .build()
+            )
+    );
+    public static final Item redstoneEyeItem = RegistrationUtils.registerItem("redstone_eye");
+    public static final Item netheriteMattockItem = RegistrationUtils.registerItem(
+            "netherite_mattock",
+            settings -> new MattockItem(ToolMaterial.NETHERITE, 1, -3.0f, settings),
+            new Item.Settings().fireproof()
+    );
+    public static final Item netheriteBattleAxeItem = RegistrationUtils.registerItem(
+            "netherite_battle_axe",
+            settings -> new BattleAxeItem(ToolMaterial.NETHERITE, 3, -2.4f, settings),
+            new Item.Settings().fireproof()
+    );
+	public static final Item ropeItem = RegistrationUtils.registerItem("rope", RopeItem::new);
+	public static final Item rottedArrowItem = RegistrationUtils.registerItem("rotted_arrow", RottedArrowItem::new);
+	public static final Item sailItem = RegistrationUtils.registerItem("sail", new Item.Settings().maxCount(1));
+	public static final Item sawDustItem = RegistrationUtils.registerItem("saw_dust");
+	public static final Item scouredLeatherItem = RegistrationUtils.registerItem("scoured_leather");
+	public static final Item screwItem = RegistrationUtils.registerItem("screw");
+    public static final Item soapItem = RegistrationUtils.registerItem("soap");
+    public static final Item soulDustItem = RegistrationUtils.registerItem("soul_dust");
+	public static final Item soulUrnItem = RegistrationUtils.registerItem("soul_urn", SoulUrnItem::new);
+	public static final Item strapItem = RegistrationUtils.registerItem("strap");
+	public static final Item tallowItem = RegistrationUtils.registerItem("tallow");
+	public static final Item tannedLeatherItem = RegistrationUtils.registerItem("tanned_leather");
+//	public static final Item tannedLeatherBootsItem = RegistrationUtils.registerItem("tanned_leather_boots", TannedLeatherBootsItem::new);
+//	public static final Item tannedLeatherCapItem = RegistrationUtils.registerItem("tanned_leather_cap", TannedLeatherCapItem::new);
+//	public static final Item tannedLeatherPantsItem = RegistrationUtils.registerItem("tanned_leather_pants", TannedLeatherPantsItem::new);
+//	public static final Item tannedLeatherTunicItem = RegistrationUtils.registerItem("tanned_leather_tunic", TannedLeatherTunicItem::new);
+    public static final Item waterWheelItem = RegistrationUtils.registerItem(
+            "water_wheel",
+            settings -> new HorizontalMechPowerSourceItem(WaterWheelEntity::new, settings),
+            new Item.Settings().maxCount(1)
+    );
+    public static final Item windmillItem = RegistrationUtils.registerItem(
+            "windmill",
+            settings -> new HorizontalMechPowerSourceItem(WindmillEntity::new, settings),
+            new Item.Settings().maxCount(1)
+    );
+	public static final Item wolfChopItem = RegistrationUtils.registerItem("wolf_chop", new Item.Settings().food(FoodComponents.PORKCHOP));
+	public static final Item woodBladeItem = RegistrationUtils.registerItem("wood_blade");
 
     @Override
     public void onInitialize() {
@@ -179,11 +214,10 @@ public class BwtItems implements ModInitializer {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(content -> {
             content.addAfter(Items.GLOW_ITEM_FRAME, canvasItem);
             content.getContext().lookup()
-                    .getOptionalWrapper(RegistryKeys.PAINTING_VARIANT)
+                    .getOptional(RegistryKeys.PAINTING_VARIANT)
                     .ifPresent(
                             registryWrapper -> addCanvases(
                                     content,
-                                    content.getContext().lookup(),
                                     registryWrapper,
                                     registryEntry -> registryEntry.isIn(BwtPaintingVariantTags.CANVAS_PLACEABLE)
                             )
@@ -191,11 +225,10 @@ public class BwtItems implements ModInitializer {
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.OPERATOR).register(content -> {
             content.getContext().lookup()
-                    .getOptionalWrapper(RegistryKeys.PAINTING_VARIANT)
+                    .getOptional(RegistryKeys.PAINTING_VARIANT)
                     .ifPresent(
                             registryWrapper -> addCanvases(
                                     content,
-                                    content.getContext().lookup(),
                                     registryWrapper,
                                     registryEntry -> !registryEntry.isIn(BwtPaintingVariantTags.CANVAS_PLACEABLE)
                             )
@@ -219,11 +252,9 @@ public class BwtItems implements ModInitializer {
 
     private static void addCanvases(
             FabricItemGroupEntries entries,
-            RegistryWrapper.WrapperLookup registryLookup,
             RegistryWrapper.Impl<PaintingVariant> registryWrapper,
             Predicate<RegistryEntry<PaintingVariant>> filter
     ) {
-        RegistryOps<NbtElement> registryOps = registryLookup.getOps(NbtOps.INSTANCE);
         registryWrapper.streamEntries()
                 .filter(filter)
                 .sorted(Comparator.comparing(
@@ -232,12 +263,8 @@ public class BwtItems implements ModInitializer {
                 ))
                 .forEach(
                         canvasVariantEntry -> {
-                            NbtComponent nbtComponent = NbtComponent.DEFAULT
-                                    .with(registryOps, CanvasEntity.VARIANT_MAP_CODEC, canvasVariantEntry)
-                                    .getOrThrow()
-                                    .apply(nbt -> nbt.putString("id", "bwt:canvas"));
                             ItemStack itemStack = new ItemStack(canvasItem);
-                            itemStack.set(DataComponentTypes.ENTITY_DATA, nbtComponent);
+                            itemStack.set(DataComponentTypes.PAINTING_VARIANT, canvasVariantEntry);
                             entries.addAfter(canvasItem, itemStack);
                         }
                 );

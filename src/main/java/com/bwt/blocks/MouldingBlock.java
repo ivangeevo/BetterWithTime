@@ -45,19 +45,14 @@ public class MouldingBlock extends MiniBlock {
 
     public static final MapCodec<MouldingBlock> CODEC = MouldingBlock.createCodec(s -> new MouldingBlock(s, Blocks.STONE));
 
-    public MouldingBlock(Settings settings, Block fullBlock) {
+    public MouldingBlock(Settings settings, Block fullBlock, boolean isWood) {
         super(settings, fullBlock);
         this.setDefaultState(this.getDefaultState().with(ORIENTATION, 0));
+        this.isWood = isWood;
     }
 
-    public static MouldingBlock ofBlock(Block fullBlock) {
-        return new MouldingBlock(Settings.copy(fullBlock), fullBlock);
-    }
-
-    public static MouldingBlock ofWoodBlock(Block woodBlock) {
-        MouldingBlock mouldingBlock = ofBlock(woodBlock);
-        mouldingBlock.isWood = true;
-        return mouldingBlock;
+    public MouldingBlock(Settings settings, Block fullBlock) {
+        this(settings, fullBlock, false);
     }
 
     @Override

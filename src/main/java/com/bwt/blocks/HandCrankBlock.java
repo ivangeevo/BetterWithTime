@@ -84,14 +84,14 @@ public class HandCrankBlock extends Block {
             return ActionResult.FAIL;
         }
         if (player.getHungerManager().getFoodLevel() <= 8) {
-            if (world.isClient) {
+            if (world.isClient()) {
                 player.sendMessage(Text.of("You're too exhausted for manual labor."), true);
             }
             return ActionResult.FAIL;
         }
         player.addExhaustion( 2.0F ); // every two pulls results in a half pip of hunger
 
-        if (world.isClient) {
+        if (world.isClient()) {
             return ActionResult.SUCCESS;
         }
 
@@ -180,7 +180,7 @@ public class HandCrankBlock extends Block {
 
     @Override
     protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        if (world.isClient || !world.getBlockState(pos).isOf(this)) {
+        if (world.isClient() || !world.getBlockState(pos).isOf(this)) {
             return;
         }
         if (canPlaceAt(state, world, pos)) {

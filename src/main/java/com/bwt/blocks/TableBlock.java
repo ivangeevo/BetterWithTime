@@ -22,19 +22,14 @@ public class TableBlock extends DecorativeBlock {
     VoxelShape BASE_SHAPE = Block.createCuboidShape(0, 15, 0, 16, 16, 16);
     VoxelShape SUPPORT_SHAPE = Block.createCuboidShape(6, 0, 6, 10, 15, 10);
 
-    public TableBlock(Settings settings, Block fullBlock) {
+    public TableBlock(Settings settings, Block fullBlock, boolean isWood) {
         super(settings, fullBlock);
         setDefaultState(getDefaultState().with(SUPPORT, true));
+        this.isWood = isWood;
     }
 
-    public static TableBlock ofBlock(Block fullBlock) {
-        return new TableBlock(Settings.copy(fullBlock), fullBlock);
-    }
-
-    public static TableBlock ofWoodBlock(Block woodBlock) {
-        TableBlock tableBlock = ofBlock(woodBlock);
-        tableBlock.isWood = true;
-        return tableBlock;
+    public TableBlock(Settings settings, Block fullBlock) {
+        this(settings, fullBlock, false);
     }
 
     @Override

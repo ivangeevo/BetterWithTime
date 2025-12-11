@@ -5,7 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -15,7 +15,7 @@ import net.minecraft.world.BlockView;
 import org.jetbrains.annotations.Nullable;
 
 public class PedestalBlock extends DecorativeBlock {
-    public static final DirectionProperty VERTICAL_DIRECTION = Properties.VERTICAL_DIRECTION;
+    public static final EnumProperty<Direction> VERTICAL_DIRECTION = Properties.VERTICAL_DIRECTION;
 
     VoxelShape UP_SHAPE = VoxelShapes.union(
             Block.createCuboidShape(0, 0, 0, 16, 14, 16),
@@ -28,19 +28,14 @@ public class PedestalBlock extends DecorativeBlock {
             Block.createCuboidShape(2, 0, 2, 14, 1, 14)
     );
 
-    public PedestalBlock(Settings settings, Block fullBlock) {
+    public PedestalBlock(Settings settings, Block fullBlock, boolean isWood) {
         super(settings, fullBlock);
         setDefaultState(getDefaultState().with(VERTICAL_DIRECTION, Direction.UP));
+        this.isWood = isWood;
     }
 
-    public static PedestalBlock ofBlock(Block fullBlock) {
-        return new PedestalBlock(Settings.copy(fullBlock), fullBlock);
-    }
-
-    public static PedestalBlock ofWoodBlock(Block woodBlock) {
-        PedestalBlock pedestalBlock = ofBlock(woodBlock);
-        pedestalBlock.isWood = true;
-        return pedestalBlock;
+    public PedestalBlock(Settings settings, Block fullBlock) {
+        this(settings, fullBlock, false);
     }
 
     @Override

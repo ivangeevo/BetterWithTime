@@ -36,7 +36,7 @@ public class BloodWoodLeavesBlock extends LeavesBlock {
     }
 
     public static void dropStack(World world, BlockPos pos, ItemStack stack) {
-        if (world.isClient || stack.isEmpty() || !world.getGameRules().getBoolean(GameRules.DO_TILE_DROPS)) {
+        if (world.isClient() || stack.isEmpty() || !world.getGameRules().getBoolean(GameRules.DO_TILE_DROPS)) {
             return;
         }
         double d = (double) EntityType.ITEM.getHeight() / 2.0;

@@ -71,7 +71,7 @@ public class SoulForgeScreenHandler extends AbstractRecipeScreenHandler<Crafting
             CraftingResultInventory resultInventory,
             @Nullable RecipeEntry<CraftingRecipe> recipe
     ) {
-        if (world.isClient || world.getServer() == null) {
+        if (world.isClient() || world.getServer() == null) {
             return;
         }
         CraftingRecipeInput craftingRecipeInput = craftingInventory.createRecipeInput();

@@ -6,7 +6,7 @@ import net.minecraft.block.*;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
@@ -19,9 +19,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class SidingBlock extends MiniBlock {
-    public static final DirectionProperty FACING = Properties.FACING;
+    public static final EnumProperty<Direction> FACING = Properties.FACING;
     protected static final Box BOTTOM_SHAPE = new Box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
 
     protected static final List<VoxelShape> COLLISION_SHAPES = Arrays.stream(Direction.values())
@@ -29,19 +30,14 @@ public class SidingBlock extends MiniBlock {
             .toList();
     public static final MapCodec<SidingBlock> CODEC = SidingBlock.createCodec(s -> new SidingBlock(s, Blocks.STONE));
 
-    public SidingBlock(Settings settings, Block fullBlock) {
+    public SidingBlock(Settings settings, Block fullBlock, boolean isWood) {
         super(settings, fullBlock);
         this.setDefaultState(this.getDefaultState().with(FACING, Direction.NORTH).with(WATERLOGGED, false));
+        this.isWood = isWood;
     }
 
-    public static SidingBlock ofBlock(Block fullBlock) {
-        return new SidingBlock(Settings.copy(fullBlock), fullBlock);
-    }
-
-    public static SidingBlock ofWoodBlock(Block woodBlock) {
-        SidingBlock sidingBlock = ofBlock(woodBlock);
-        sidingBlock.isWood = true;
-        return sidingBlock;
+    public SidingBlock(Settings settings, Block fullBlock) {
+        this(settings, fullBlock, false);
     }
 
     public MapCodec<? extends SidingBlock> getCodec() {
@@ -56,7 +52,7 @@ public class SidingBlock extends MiniBlock {
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return COLLISION_SHAPES.get(state.get(FACING).getId());
+        return COLLISION_SHAPES.get(state.get(FACING).getIndex());
     }
 
     @Override

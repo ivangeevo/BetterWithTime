@@ -7,8 +7,8 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.loot.context.LootWorldContext;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -20,7 +20,7 @@ import java.util.List;
 public class AmethystInhaleBehavior implements BlockInhaleBehavior {
     @Override
     public ItemStack getInhaledItems(BlockPointer blockPointer) {
-        RegistryWrapper.Impl<Enchantment> enchantmentRegistry = blockPointer.world().getRegistryManager().getWrapperOrThrow(RegistryKeys.ENCHANTMENT);
+        RegistryWrapper.Impl<Enchantment> enchantmentRegistry = blockPointer.world().getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT);
         BlockState state = blockPointer.world().getBlockState(blockPointer.pos().offset(blockPointer.state().get(BlockDispenserBlock.FACING)));
         if (!(state.isOf(Blocks.AMETHYST_CLUSTER))) {
             return ItemStack.EMPTY;
@@ -30,17 +30,17 @@ public class AmethystInhaleBehavior implements BlockInhaleBehavior {
         ItemStack toolStack = new ItemStack(Items.NETHERITE_PICKAXE);
         RegistryEntry.Reference<Enchantment> silkTouch = enchantmentRegistry.getOrThrow(Enchantments.SILK_TOUCH);
         toolStack.addEnchantment(silkTouch, 1);
-        LootContextParameterSet.Builder builder = new LootContextParameterSet.Builder(blockPointer.world())
+        LootWorldContext.Builder builder = new LootWorldContext.Builder(blockPointer.world())
                 .add(LootContextParameters.ORIGIN, blockPointer.pos().toCenterPos())
                 .add(LootContextParameters.TOOL, toolStack);
         List<ItemStack> droppedStacks = state.getDroppedStacks(builder);
         if (droppedStacks.size() > 1) {
             return droppedStacks.stream()
-                    .filter(dropStack -> !dropStack.getItem().equals(state.getBlock().getPickStack(blockPointer.world(), blockPointer.pos(), state).getItem()))
+                    .filter(dropStack -> !dropStack.getItem().equals(state.getPickStack(blockPointer.world(), blockPointer.pos(), false).getItem()))
                     .findAny().orElse(ItemStack.EMPTY);
         }
         else if (droppedStacks.size() == 1) {
-            return droppedStacks.get(0);
+            return droppedStacks.getFirst();
         }
         return ItemStack.EMPTY;
     }

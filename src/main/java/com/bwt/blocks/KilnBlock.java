@@ -111,7 +111,7 @@ public class KilnBlock extends Block {
     }
 
     @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @org.jspecify.annotations.Nullable WireOrientation wireOrientation, boolean notify) {
         super.neighborUpdate(state, world, pos, sourceBlock, sourcePos, notify);
         Optional<KilnRecipe> recipe = getRecipe(world, world.getBlockState(pos.up()));
         if (recipe.isPresent()) {

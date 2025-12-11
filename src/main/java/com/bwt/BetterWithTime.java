@@ -30,21 +30,20 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.registry.CompostingChanceRegistry;
-import net.fabricmc.fabric.api.registry.FuelRegistry;
+import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
 import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.registry.TillableBlockRegistry;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ToolComponent;
 import net.minecraft.entity.EntityType;
-import net.minecraft.item.HoeItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.condition.*;
 import net.minecraft.loot.context.LootContext;
@@ -60,8 +59,11 @@ import net.minecraft.registry.Registry;
 import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 public class BetterWithTime implements ModInitializer {
 	// This logger is used to write text to the console and the log file.
@@ -79,8 +81,8 @@ public class BetterWithTime implements ModInitializer {
 	public static final BwtSoundEvents soundEvents = new BwtSoundEvents();
 	public static final TrackedDataHandlers dataHandlers = new TrackedDataHandlers();
 	public static ScreenHandlerType<BlockDispenserScreenHandler> blockDispenserScreenHandler = new ScreenHandlerType<>(BlockDispenserScreenHandler::new, FeatureFlags.VANILLA_FEATURES);
-	public static ExtendedScreenHandlerType<CauldronScreenHandler, AbstractCookingPotData> cauldronScreenHandler = new ExtendedScreenHandlerType<>(CauldronScreenHandler::new, AbstractCookingPotData.PACKET_CODEC);
-	public static ExtendedScreenHandlerType<CrucibleScreenHandler, AbstractCookingPotData> crucibleScreenHandler = new ExtendedScreenHandlerType<>(CrucibleScreenHandler::new, AbstractCookingPotData.PACKET_CODEC);
+	public static ExtendedScreenHandlerType<@NotNull CauldronScreenHandler, @NotNull AbstractCookingPotData> cauldronScreenHandler = new ExtendedScreenHandlerType<>(CauldronScreenHandler::new, AbstractCookingPotData.PACKET_CODEC);
+	public static ExtendedScreenHandlerType<@NotNull CrucibleScreenHandler, @NotNull AbstractCookingPotData> crucibleScreenHandler = new ExtendedScreenHandlerType<>(CrucibleScreenHandler::new, AbstractCookingPotData.PACKET_CODEC);
 	public static ScreenHandlerType<MillStoneScreenHandler> millStoneScreenHandler = new ScreenHandlerType<>(MillStoneScreenHandler::new, FeatureFlags.VANILLA_FEATURES);
 	public static ScreenHandlerType<PulleyScreenHandler> pulleyScreenHandler = new ScreenHandlerType<>(PulleyScreenHandler::new, FeatureFlags.VANILLA_FEATURES);
 	public static ScreenHandlerType<MechHopperScreenHandler> mechHopperScreenHandler = new ScreenHandlerType<>(MechHopperScreenHandler::new, FeatureFlags.VANILLA_FEATURES);
@@ -115,28 +117,30 @@ public class BetterWithTime implements ModInitializer {
 		// Fuel maps
 		// Vanilla change to account for the moulding -> stick recipe
 		// If uncorrected, you would gain free fuel time by converting your moulding to sticks
-		FuelRegistry.INSTANCE.add(Items.STICK, 75);
-		FuelRegistry.INSTANCE.add(BwtItems.nethercoalItem, 3200);
-		FuelRegistry.INSTANCE.add(BwtItemTags.WOODEN_SIDING_BLOCKS, 150);
-		FuelRegistry.INSTANCE.add(BwtItemTags.WOODEN_MOULDING_BLOCKS, 75);
-		FuelRegistry.INSTANCE.add(BwtItemTags.WOODEN_CORNER_BLOCKS, 38);
-		FuelRegistry.INSTANCE.add(BwtBlocks.axleBlock, 150);
-		FuelRegistry.INSTANCE.add(BwtBlocks.axlePowerSourceBlock, 150);
-		FuelRegistry.INSTANCE.add(BwtBlocks.bellowsBlock, 450);
-//      FuelRegistry.INSTANCE.add(BwtBlocks.bloodWoodBlock)
-		FuelRegistry.INSTANCE.add(BwtBlocks.gearBoxBlock, 600);
-		FuelRegistry.INSTANCE.add(BwtBlocks.redstoneClutchBlock, 600);
-		FuelRegistry.INSTANCE.add(BwtBlocks.grateBlock, 300);
-		FuelRegistry.INSTANCE.add(BwtBlocks.hopperBlock, 300);
-		FuelRegistry.INSTANCE.add(BwtBlocks.platformBlock, 375);
-		FuelRegistry.INSTANCE.add(BwtBlocks.pulleyBlock, 600);
-		FuelRegistry.INSTANCE.add(BwtBlocks.sawBlock, 300);
-		FuelRegistry.INSTANCE.add(BwtBlocks.slatsBlock, 300);
-//      FuelRegistry.INSTANCE.add(BwtBlocks.screwPumpBlock)
-        FuelRegistry.INSTANCE.add(BwtItemTags.WOODEN_TABLE_BLOCKS, 150);
-		FuelRegistry.INSTANCE.add(BwtItems.gearItem, 18);
-		FuelRegistry.INSTANCE.add(BwtItems.sawDustItem, 150);
-		FuelRegistry.INSTANCE.add(BwtItems.soulDustItem, 150);
+        FuelRegistryEvents.BUILD.register((builder, context) -> {
+            builder.add(Items.STICK, 75);
+            builder.add(BwtItems.nethercoalItem, 3200);
+            builder.add(BwtItemTags.WOODEN_SIDING_BLOCKS, 150);
+            builder.add(BwtItemTags.WOODEN_MOULDING_BLOCKS, 75);
+            builder.add(BwtItemTags.WOODEN_CORNER_BLOCKS, 38);
+            builder.add(BwtBlocks.axleBlock, 150);
+            builder.add(BwtBlocks.axlePowerSourceBlock, 150);
+            builder.add(BwtBlocks.bellowsBlock, 450);
+//      builder.add(BwtBlocks.bloodWoodBlock)
+            builder.add(BwtBlocks.gearBoxBlock, 600);
+            builder.add(BwtBlocks.redstoneClutchBlock, 600);
+            builder.add(BwtBlocks.grateBlock, 300);
+            builder.add(BwtBlocks.hopperBlock, 300);
+            builder.add(BwtBlocks.platformBlock, 375);
+            builder.add(BwtBlocks.pulleyBlock, 600);
+            builder.add(BwtBlocks.sawBlock, 300);
+            builder.add(BwtBlocks.slatsBlock, 300);
+//      builder.add(BwtBlocks.screwPumpBlock)
+            builder.add(BwtItemTags.WOODEN_TABLE_BLOCKS, 150);
+            builder.add(BwtItems.gearItem, 18);
+            builder.add(BwtItems.sawDustItem, 150);
+            builder.add(BwtItems.soulDustItem, 150);
+        });
 
         // Composting
         CompostingChanceRegistry.INSTANCE.add(BwtItems.hempSeedsItem, 0.3F);
@@ -157,20 +161,20 @@ public class BetterWithTime implements ModInitializer {
 			if (!source.isBuiltin()) {
 				return;
 			}
-			if (key.equals(EntityType.WOLF.getLootTableId())) {
+			if (key.equals(EntityType.WOLF.getLootTableKey().orElse(null))) {
 				LootPool.Builder poolBuilder = LootPool.builder()
 						.with(ItemEntry.builder(BwtItems.wolfChopItem)
 								.apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 3.0f)))
 						).apply(
                                 FurnaceSmeltLootFunction.builder()
                                         .conditionally(
-                                                EntityPropertiesLootCondition.builder(LootContext.EntityTarget.THIS, EntityPredicate.Builder.create().flags(EntityFlagsPredicate.Builder.create().onFire(true)))
+                                                EntityPropertiesLootCondition.builder(LootContext.EntityReference.THIS, EntityPredicate.Builder.create().flags(EntityFlagsPredicate.Builder.create().onFire(true)))
                                         )
 						).apply(EnchantedCountIncreaseLootFunction.builder(wrapperLookup, UniformLootNumberProvider.create(0.0f, 1.0f)));
 
 				tableBuilder.pool(poolBuilder);
 			}
-			if (key.equals(Blocks.COBBLESTONE.getLootTableKey())) {
+			if (key.equals(Blocks.COBBLESTONE.getLootTableKey().orElse(null))) {
 				tableBuilder.modifyPools(builder -> builder.conditionally(new InvertedLootCondition(MiningChargeExplosion.LOOT_CONDITION)))
 						.pool(LootPool.builder().conditionally(MiningChargeExplosion.LOOT_CONDITION).with(ItemEntry.builder(Items.GRAVEL)));
 			}
@@ -189,7 +193,10 @@ public class BetterWithTime implements ModInitializer {
 				Item tool = context.getStack().getItem();
 				int randBound = 30;
 				if (tool instanceof HoeItem hoeItem) {
-					randBound -= Math.round(hoeItem.getMaterial().getMiningSpeedMultiplier());
+                    float miningSpeed = Optional.ofNullable(hoeItem.getComponents().get(DataComponentTypes.TOOL))
+                            .map(ToolComponent::defaultMiningSpeed)
+                            .orElse(30f);
+					randBound -= Math.round(miningSpeed);
 				}
 				if (context.getWorld().getRandom().nextInt(randBound) == 0) {
 					Block.dropStack(context.getWorld(), context.getBlockPos(), context.getSide(), new ItemStack(BwtItems.hempSeedsItem));
@@ -199,11 +206,12 @@ public class BetterWithTime implements ModInitializer {
 
 		PayloadTypeRegistry.playS2C().register(KilnBlockCookingProgressPayload.ID, KilnBlockCookingProgressPayload.CODEC);
 
-        ResourceManagerHelper.registerBuiltinResourcePack(
+
+        ResourceLoader.registerBuiltinPack(
                 Id.PROGRAMMER_ART_PACK_ID,
                 FabricLoader.getInstance().getModContainer(Id.MOD_ID).orElseThrow(),
                 Text.literal("BWT Programmer Art"),
-                ResourcePackActivationType.NORMAL
+                PackActivationType.NORMAL
         );
 	}
 }

@@ -34,19 +34,14 @@ public class CornerBlock extends MiniBlock {
 
     public static final MapCodec<CornerBlock> CODEC = CornerBlock.createCodec(s -> new CornerBlock(s, Blocks.STONE));
 
-    public CornerBlock(Settings settings, Block fullBlock) {
+    public CornerBlock(Settings settings, Block fullBlock, boolean isWood) {
         super(settings, fullBlock);
         this.setDefaultState(this.getDefaultState().with(ORIENTATION, 0));
+        this.isWood = isWood;
     }
 
-    public static CornerBlock ofBlock(Block fullBlock) {
-        return new CornerBlock(Settings.copy(fullBlock), fullBlock);
-    }
-
-    public static CornerBlock ofWoodBlock(Block woodBlock) {
-        CornerBlock cornerBlock = ofBlock(woodBlock);
-        cornerBlock.isWood = true;
-        return cornerBlock;
+    public CornerBlock(Settings settings, Block fullBlock) {
+        this(settings, fullBlock, false);
     }
 
     @Override

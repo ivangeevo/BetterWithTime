@@ -35,7 +35,7 @@ public class CauldronBlock extends AbstractCookingPotBlock {
 
     @Override
     public ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity player, BlockHitResult blockHitResult) {
-        if (world.isClient) return ActionResult.SUCCESS;
+        if (world.isClient()) return ActionResult.SUCCESS;
         BlockEntity blockEntity = world.getBlockEntity(blockPos);
         if (blockEntity instanceof CauldronBlockEntity cauldronBlockEntity) {
             player.openHandledScreen(cauldronBlockEntity);

@@ -158,8 +158,8 @@ public class GearBoxBlock extends SimpleFacingBlock implements MechPowerBlockBas
     }
 
     @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        if (world.isClient) {
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @org.jspecify.annotations.Nullable WireOrientation wireOrientation, boolean notify) {
+        if (world.isClient()) {
             return;
         }
         schedulePowerUpdate(state, world, pos);

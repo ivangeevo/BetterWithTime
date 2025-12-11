@@ -21,15 +21,14 @@ import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import net.minecraft.world.block.WireOrientation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.function.Predicate;
 
 public class TurntableBlock extends BlockWithEntity implements MechPowerBlockBase {
@@ -110,8 +109,8 @@ public class TurntableBlock extends BlockWithEntity implements MechPowerBlockBas
     }
 
     @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        if (world.isClient) {
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @org.jspecify.annotations.Nullable WireOrientation wireOrientation, boolean notify) {
+        if (world.isClient()) {
             return;
         }
         schedulePowerUpdate(state, world, pos);
@@ -125,7 +124,7 @@ public class TurntableBlock extends BlockWithEntity implements MechPowerBlockBas
 
     @Nullable
     protected static <A extends BlockEntity> BlockEntityTicker<A> validateTicker(World world, BlockEntityType<A> givenType) {
-        return world.isClient ? null : BlockWithEntity.validateTicker(givenType, BwtBlockEntities.turntableBlockEntity, TurntableBlockEntity::tick);
+        return world.isClient() ? null : BlockWithEntity.validateTicker(givenType, BwtBlockEntities.turntableBlockEntity, TurntableBlockEntity::tick);
     }
 
     @Nullable

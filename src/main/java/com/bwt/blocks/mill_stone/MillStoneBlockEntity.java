@@ -13,6 +13,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.component.ComponentsAccess;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -33,6 +34,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.Objects;
 
 public class MillStoneBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, Inventory {
     protected int grindProgressTime;
@@ -74,7 +76,7 @@ public class MillStoneBlockEntity extends BlockEntity implements NamedScreenHand
             return;
         }
         MillStoneRecipeInput recipeInput = new MillStoneRecipeInput(blockEntity.inventory.getHeldStacks());
-        List<RecipeEntry<MillStoneRecipe>> matches = world.getRecipeManager().getAllMatches(BwtRecipes.MILL_STONE_RECIPE_TYPE, recipeInput, world);
+        List<RecipeEntry<MillStoneRecipe>> matches = Objects.requireNonNull(world.getServer()).getRecipeManager().getAllMatches(BwtRecipes.MILL_STONE_RECIPE_TYPE, recipeInput, world).toList();
         if (matches.isEmpty()) {
             if (blockEntity.grindProgressTime != 0) {
                 blockEntity.grindProgressTime = 0;
@@ -146,6 +148,11 @@ public class MillStoneBlockEntity extends BlockEntity implements NamedScreenHand
         ItemEntity itemEntity = new ItemEntity(world, itemPos.getX(), itemPos.getY(), itemPos.getZ(), stack);
         itemEntity.setVelocity(itemVelocity);
         world.spawnEntity(itemEntity);
+    }
+
+    @Override
+    protected void readComponents(ComponentsAccess components) {
+        super.readComponents(components);
     }
 
     @Override

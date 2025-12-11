@@ -10,18 +10,13 @@ import net.minecraft.world.BlockView;
 public class ColumnBlock extends DecorativeBlock {
     VoxelShape SHAPE = Block.createCuboidShape(3, 0, 3, 13, 16, 13);
 
-    public ColumnBlock(Settings settings, Block fullBlock) {
+    public ColumnBlock(Settings settings, Block fullBlock, boolean isWood) {
         super(settings, fullBlock);
+        this.isWood = isWood;
     }
 
-    public static ColumnBlock ofBlock(Block fullBlock) {
-        return new ColumnBlock(Settings.copy(fullBlock), fullBlock);
-    }
-
-    public static ColumnBlock ofWoodBlock(Block woodBlock) {
-        ColumnBlock columnBlock = ofBlock(woodBlock);
-        columnBlock.isWood = true;
-        return columnBlock;
+    public ColumnBlock(Settings settings, Block fullBlock) {
+        this(settings, fullBlock, false);
     }
 
     @Override

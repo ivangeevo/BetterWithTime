@@ -113,7 +113,7 @@ public abstract class WolfEntityMixin extends TameableEntity implements MobEntit
     public void tick(CallbackInfo ci) {
         World world = getWorld();
         Random random = world.getRandom();
-        if (world.isClient) {
+        if (world.isClient()) {
             return;
         }
         if (isBaby() || !bwt$isFed()) {

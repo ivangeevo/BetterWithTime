@@ -25,6 +25,6 @@ public class FluidTagGenerator extends FabricTagProvider.FluidTagProvider {
 
     @Override
     protected void configure(RegistryWrapper.WrapperLookup arg) {
-        getOrCreateTagBuilder(BwtFluidTags.AQUEDUCT_FLUIDS).forceAddTag(FluidTags.WATER);
+        valueLookupBuilder(BwtFluidTags.AQUEDUCT_FLUIDS).forceAddTag(FluidTags.WATER);
     }
 }

@@ -9,10 +9,12 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBlockTags;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.data.tag.ProvidedTagBuilder;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagBuilder;
 import net.minecraft.registry.tag.TagKey;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
@@ -23,34 +25,30 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
         super(output, completableFuture);
     }
 
-    public TagBuilder getTagBuilder(TagKey<Block> tag) {
-        return super.getTagBuilder(tag);
-    }
-
     @Override
-    protected void configure(RegistryWrapper.WrapperLookup arg) {
-        getOrCreateTagBuilder(BlockTags.AIR).add(
+    protected void configure(RegistryWrapper.@NotNull WrapperLookup arg) {
+        valueLookupBuilder(BlockTags.AIR).add(
                 BwtBlocks.detectorLogicBlock,
                 BwtBlocks.lensBeamBlock
         );
-        getOrCreateTagBuilder(BlockTags.REPLACEABLE).add(
+        valueLookupBuilder(BlockTags.REPLACEABLE).add(
                 BwtBlocks.detectorLogicBlock,
                 BwtBlocks.lensBeamBlock
         );
-        getOrCreateTagBuilder(BlockTags.IMPERMEABLE).add(BwtBlocks.lensBeamGlassBlock);
-        getOrCreateTagBuilder(ConventionalBlockTags.GLASS_BLOCKS).add(BwtBlocks.lensBeamGlassBlock);
-        getOrCreateTagBuilder(BlockTags.CLIMBABLE).add(BwtBlocks.ropeBlock);
-        getOrCreateTagBuilder(BlockTags.RAILS).add(BwtBlocks.stoneDetectorRailBlock, BwtBlocks.obsidianDetectorRailBlock);
-        getOrCreateTagBuilder(BlockTags.PRESSURE_PLATES).add(BwtBlocks.obsidianPressurePlateBlock);
-        getOrCreateTagBuilder(BlockTags.SLABS).add(BwtBlocks.companionSlabBlock).add(BwtBlocks.wickerSlabBlock);
+        valueLookupBuilder(BlockTags.IMPERMEABLE).add(BwtBlocks.lensBeamGlassBlock);
+        valueLookupBuilder(ConventionalBlockTags.GLASS_BLOCKS).add(BwtBlocks.lensBeamGlassBlock);
+        valueLookupBuilder(BlockTags.CLIMBABLE).add(BwtBlocks.ropeBlock);
+        valueLookupBuilder(BlockTags.RAILS).add(BwtBlocks.stoneDetectorRailBlock, BwtBlocks.obsidianDetectorRailBlock);
+        valueLookupBuilder(BlockTags.PRESSURE_PLATES).add(BwtBlocks.obsidianPressurePlateBlock);
+        valueLookupBuilder(BlockTags.SLABS).add(BwtBlocks.companionSlabBlock).add(BwtBlocks.wickerSlabBlock);
 
         // Make planters behave like their corresponding blocks
-        getOrCreateTagBuilder(BlockTags.DIRT).add(BwtBlocks.soilPlanterBlock, BwtBlocks.grassPlanterBlock);
-        getOrCreateTagBuilder(BlockTags.SOUL_FIRE_BASE_BLOCKS).add(BwtBlocks.soulSandPlanterBlock);
-        getOrCreateTagBuilder(BlockTags.SOUL_SPEED_BLOCKS).add(BwtBlocks.soulSandPlanterBlock);
-        getOrCreateTagBuilder(BwtBlockTags.CROPS_CAN_PLANT_ON).add(Blocks.FARMLAND, BwtBlocks.soilPlanterBlock);
-        getOrCreateTagBuilder(BwtBlockTags.SOUL_SAND_PLANTS_CAN_PLANT_ON).add(Blocks.SOUL_SAND, BwtBlocks.soulSandPlanterBlock);
-        getOrCreateTagBuilder(BwtBlockTags.DOES_NOT_TRIGGER_BUDDY).add(
+        valueLookupBuilder(BlockTags.DIRT).add(BwtBlocks.soilPlanterBlock, BwtBlocks.grassPlanterBlock);
+        valueLookupBuilder(BlockTags.SOUL_FIRE_BASE_BLOCKS).add(BwtBlocks.soulSandPlanterBlock);
+        valueLookupBuilder(BlockTags.SOUL_SPEED_BLOCKS).add(BwtBlocks.soulSandPlanterBlock);
+        valueLookupBuilder(BwtBlockTags.CROPS_CAN_PLANT_ON).add(Blocks.FARMLAND, BwtBlocks.soilPlanterBlock);
+        valueLookupBuilder(BwtBlockTags.SOUL_SAND_PLANTS_CAN_PLANT_ON).add(Blocks.SOUL_SAND, BwtBlocks.soulSandPlanterBlock);
+        valueLookupBuilder(BwtBlockTags.DOES_NOT_TRIGGER_BUDDY).add(
                 Blocks.REDSTONE_WIRE,
                 Blocks.REDSTONE_TORCH,
                 Blocks.REDSTONE_WALL_TORCH,
@@ -60,9 +58,9 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
                 BwtBlocks.detectorLogicBlock
         );
 
-        getOrCreateTagBuilder(BwtBlockTags.BLOCK_DISPENSER_INHALE_VOID)
+        valueLookupBuilder(BwtBlockTags.BLOCK_DISPENSER_INHALE_VOID)
                 .add(Blocks.NETHER_PORTAL);
-        getOrCreateTagBuilder(BwtBlockTags.BLOCK_DISPENSER_INHALE_NOOP)
+        valueLookupBuilder(BwtBlockTags.BLOCK_DISPENSER_INHALE_NOOP)
                 .add(Blocks.STRUCTURE_VOID)
                 .add(Blocks.STRUCTURE_BLOCK)
                 .add(Blocks.PISTON_HEAD)
@@ -70,18 +68,18 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
                 .add(Blocks.END_PORTAL)
                 .forceAddTag(BlockTags.WITHER_IMMUNE)
                 .forceAddTag(BlockTags.FIRE);
-        getOrCreateTagBuilder(BwtBlockTags.DETECTABLE_SMALL_CROPS)
+        valueLookupBuilder(BwtBlockTags.DETECTABLE_SMALL_CROPS)
                 .add(Blocks.WHEAT)
                 .add(Blocks.CARROTS)
                 .add(Blocks.POTATOES);
-        getOrCreateTagBuilder(BwtBlockTags.TRANSFERS_ROTATION_UPWARD_OVERRIDE)
+        valueLookupBuilder(BwtBlockTags.TRANSFERS_ROTATION_UPWARD_OVERRIDE)
                 .forceAddTag(BlockTags.STAIRS)
                 .forceAddTag(BlockTags.WALLS)
                 .forceAddTag(BlockTags.ANVIL)
                 .add(Blocks.SOUL_SAND)
                 .add(Blocks.MUD)
                 .add(Blocks.HONEY_BLOCK);
-        getOrCreateTagBuilder(BwtBlockTags.NETHER_GROTH_CAN_EAT)
+        valueLookupBuilder(BwtBlockTags.NETHER_GROTH_CAN_EAT)
                 .add(
                         Blocks.RED_MUSHROOM,
                         Blocks.BROWN_MUSHROOM,
@@ -95,15 +93,15 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
                         Blocks.WARPED_ROOTS,
                         Blocks.NETHER_SPROUTS
                 );
-        getOrCreateTagBuilder(BlockTags.INFINIBURN_OVERWORLD).add(BwtBlocks.hibachiBlock);
-        getOrCreateTagBuilder(BlockTags.INFINIBURN_NETHER).add(BwtBlocks.hibachiBlock);
-        getOrCreateTagBuilder(BlockTags.INFINIBURN_END).add(BwtBlocks.hibachiBlock);
-        getOrCreateTagBuilder(BlockTags.FIRE).add(BwtBlocks.stokedFireBlock);
-        getOrCreateTagBuilder(BlockTags.WOOL).add(BwtBlocks.companionCubeBlock);
-        getOrCreateTagBuilder(BwtBlockTags.WOOL_SLABS).add(BwtBlocks.companionSlabBlock);
+        valueLookupBuilder(BlockTags.INFINIBURN_OVERWORLD).add(BwtBlocks.hibachiBlock);
+        valueLookupBuilder(BlockTags.INFINIBURN_NETHER).add(BwtBlocks.hibachiBlock);
+        valueLookupBuilder(BlockTags.INFINIBURN_END).add(BwtBlocks.hibachiBlock);
+        valueLookupBuilder(BlockTags.FIRE).add(BwtBlocks.stokedFireBlock);
+        valueLookupBuilder(BlockTags.WOOL).add(BwtBlocks.companionCubeBlock);
+        valueLookupBuilder(BwtBlockTags.WOOL_SLABS).add(BwtBlocks.companionSlabBlock);
 
-        getOrCreateTagBuilder(BwtBlockTags.HEATS_COOKING_STATIONS).add(Blocks.FIRE);
-        getOrCreateTagBuilder(BwtBlockTags.STOKES_COOKING_STATIONS).add(BwtBlocks.stokedFireBlock);
+        valueLookupBuilder(BwtBlockTags.HEATS_COOKING_STATIONS).add(Blocks.FIRE);
+        valueLookupBuilder(BwtBlockTags.STOKES_COOKING_STATIONS).add(BwtBlocks.stokedFireBlock);
 
         addTools();
         addMaterialInheritedBlockTags();
@@ -116,29 +114,29 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
     }
 
     private void addBloodWoodTags() {
-        getOrCreateTagBuilder(BwtBlockTags.BLOOD_WOOD_LOGS).add(
+        valueLookupBuilder(BwtBlockTags.BLOOD_WOOD_LOGS).add(
                 BwtBlocks.bloodWoodBlocks.logBlock,
                 BwtBlocks.bloodWoodBlocks.woodBlock,
                 BwtBlocks.bloodWoodBlocks.strippedLogBlock,
                 BwtBlocks.bloodWoodBlocks.strippedWoodBlock
         );
-        getOrCreateTagBuilder(BwtBlockTags.BLOOD_WOOD_PLANTABLE_ON).add(
+        valueLookupBuilder(BwtBlockTags.BLOOD_WOOD_PLANTABLE_ON).add(
                 Blocks.SOUL_SAND,
                 Blocks.SOUL_SOIL,
                 BwtBlocks.soulSandPlanterBlock
         );
-        getOrCreateTagBuilder(BlockTags.LOGS).forceAddTag(BwtBlockTags.BLOOD_WOOD_LOGS);
-        getOrCreateTagBuilder(BlockTags.LEAVES).add(BwtBlocks.bloodWoodBlocks.leavesBlock);
-        getOrCreateTagBuilder(BlockTags.SAPLINGS).add(BwtBlocks.bloodWoodBlocks.saplingBlock);
-        getOrCreateTagBuilder(BlockTags.PLANKS).add(BwtBlocks.bloodWoodBlocks.planksBlock);
-        getOrCreateTagBuilder(BlockTags.WOODEN_BUTTONS).add(BwtBlocks.bloodWoodBlocks.buttonBlock);
-        getOrCreateTagBuilder(BlockTags.WOODEN_FENCES).add(BwtBlocks.bloodWoodBlocks.fenceBlock);
-        getOrCreateTagBuilder(BlockTags.FENCE_GATES).add(BwtBlocks.bloodWoodBlocks.fenceGateBlock);
-        getOrCreateTagBuilder(BlockTags.WOODEN_PRESSURE_PLATES).add(BwtBlocks.bloodWoodBlocks.pressurePlateBlock);
-        getOrCreateTagBuilder(BlockTags.WOODEN_SLABS).add(BwtBlocks.bloodWoodBlocks.slabBlock);
-        getOrCreateTagBuilder(BlockTags.WOODEN_STAIRS).add(BwtBlocks.bloodWoodBlocks.stairsBlock);
-        getOrCreateTagBuilder(BlockTags.WOODEN_DOORS).add(BwtBlocks.bloodWoodBlocks.doorBlock);
-        getOrCreateTagBuilder(BlockTags.WOODEN_TRAPDOORS).add(BwtBlocks.bloodWoodBlocks.trapdoorBlock);
+        valueLookupBuilder(BlockTags.LOGS).forceAddTag(BwtBlockTags.BLOOD_WOOD_LOGS);
+        valueLookupBuilder(BlockTags.LEAVES).add(BwtBlocks.bloodWoodBlocks.leavesBlock);
+        valueLookupBuilder(BlockTags.SAPLINGS).add(BwtBlocks.bloodWoodBlocks.saplingBlock);
+        valueLookupBuilder(BlockTags.PLANKS).add(BwtBlocks.bloodWoodBlocks.planksBlock);
+        valueLookupBuilder(BlockTags.WOODEN_BUTTONS).add(BwtBlocks.bloodWoodBlocks.buttonBlock);
+        valueLookupBuilder(BlockTags.WOODEN_FENCES).add(BwtBlocks.bloodWoodBlocks.fenceBlock);
+        valueLookupBuilder(BlockTags.FENCE_GATES).add(BwtBlocks.bloodWoodBlocks.fenceGateBlock);
+        valueLookupBuilder(BlockTags.WOODEN_PRESSURE_PLATES).add(BwtBlocks.bloodWoodBlocks.pressurePlateBlock);
+        valueLookupBuilder(BlockTags.WOODEN_SLABS).add(BwtBlocks.bloodWoodBlocks.slabBlock);
+        valueLookupBuilder(BlockTags.WOODEN_STAIRS).add(BwtBlocks.bloodWoodBlocks.stairsBlock);
+        valueLookupBuilder(BlockTags.WOODEN_DOORS).add(BwtBlocks.bloodWoodBlocks.doorBlock);
+        valueLookupBuilder(BlockTags.WOODEN_TRAPDOORS).add(BwtBlocks.bloodWoodBlocks.trapdoorBlock);
     }
 
     private void addTools() {
@@ -151,11 +149,11 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
                 BwtBlocks.tableBlocks.stream()
         )
                 .reduce(Stream::concat).orElseGet(Stream::empty)
-                .forEach(materialInheritedBlock -> getOrCreateTagBuilder(materialInheritedBlock.isWood() ? BlockTags.AXE_MINEABLE : BlockTags.PICKAXE_MINEABLE).add(materialInheritedBlock));
+                .forEach(materialInheritedBlock -> valueLookupBuilder(materialInheritedBlock.isWood() ? BlockTags.AXE_MINEABLE : BlockTags.PICKAXE_MINEABLE).add(materialInheritedBlock));
 
-        getOrCreateTagBuilder(BwtBlockTags.MATTOCK_MINEABLE).forceAddTag(BlockTags.PICKAXE_MINEABLE).forceAddTag(BlockTags.SHOVEL_MINEABLE);
-        getOrCreateTagBuilder(BwtBlockTags.BATTLEAXE_MINEABLE).forceAddTag(BlockTags.AXE_MINEABLE).forceAddTag(BlockTags.SWORD_EFFICIENT);
-        getOrCreateTagBuilder(BlockTags.PICKAXE_MINEABLE)
+        valueLookupBuilder(BwtBlockTags.MATTOCK_MINEABLE).forceAddTag(BlockTags.PICKAXE_MINEABLE).forceAddTag(BlockTags.SHOVEL_MINEABLE);
+        valueLookupBuilder(BwtBlockTags.BATTLEAXE_MINEABLE).forceAddTag(BlockTags.AXE_MINEABLE).forceAddTag(BlockTags.SWORD_EFFICIENT);
+        valueLookupBuilder(BlockTags.PICKAXE_MINEABLE)
                 .add(BwtBlocks.anchorBlock)
                 .add(BwtBlocks.blockDispenserBlock)
                 .add(BwtBlocks.buddyBlock)
@@ -184,7 +182,7 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
                 .add(BwtBlocks.turntableBlock)
                 .add(BwtBlocks.urnBlock);
 
-        getOrCreateTagBuilder(BlockTags.SHOVEL_MINEABLE)
+        valueLookupBuilder(BlockTags.SHOVEL_MINEABLE)
                 .add(BwtBlocks.dungBlock)
                 .add(BwtBlocks.unfiredDecoratedPotBlock)
                 .add(BwtBlocks.unfiredDecoratedPotBlockWithSherds)
@@ -199,7 +197,7 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
                 .add(BwtBlocks.myceliumSlabBlock)
                 .add(BwtBlocks.podzolSlabBlock);
 
-        getOrCreateTagBuilder(BlockTags.AXE_MINEABLE)
+        valueLookupBuilder(BlockTags.AXE_MINEABLE)
                 .add(BwtBlocks.axleBlock)
                 .add(BwtBlocks.axlePowerSourceBlock)
                 .add(BwtBlocks.bellowsBlock)
@@ -233,7 +231,7 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
                 .add(BwtBlocks.wickerSlabBlock)
                 .add(BwtBlocks.wickerPaneBlock);
 
-        getOrCreateTagBuilder(BlockTags.HOE_MINEABLE)
+        valueLookupBuilder(BlockTags.HOE_MINEABLE)
                 .add(BwtBlocks.bloodWoodBlocks.leavesBlock)
                 .add(BwtBlocks.paddingBlock);
 
@@ -242,22 +240,22 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
 //        .add(BwtBlocks.netherGrothBlock)
 //        .add(BwtBlocks.stakeBlock)
 
-        getOrCreateTagBuilder(BlockTags.SWORD_EFFICIENT).add(BwtBlocks.ropeBlock, BwtBlocks.hempCropBlock);
+        valueLookupBuilder(BlockTags.SWORD_EFFICIENT).add(BwtBlocks.ropeBlock, BwtBlocks.hempCropBlock);
     }
 
     protected void addMaterialInheritedBlockTags() {
-        FabricTagBuilder woodenSidingBuilder = getOrCreateTagBuilder(BwtBlockTags.WOODEN_SIDING_BLOCKS);
-        FabricTagBuilder woodenMouldingBuilder = getOrCreateTagBuilder(BwtBlockTags.WOODEN_MOULDING_BLOCKS);
-        FabricTagBuilder woodenCornerBuilder = getOrCreateTagBuilder(BwtBlockTags.WOODEN_CORNER_BLOCKS);
-        FabricTagBuilder sidingBuilder = getOrCreateTagBuilder(BwtBlockTags.SIDING_BLOCKS);
-        FabricTagBuilder mouldingBuilder = getOrCreateTagBuilder(BwtBlockTags.MOULDING_BLOCKS);
-        FabricTagBuilder cornerBuilder = getOrCreateTagBuilder(BwtBlockTags.CORNER_BLOCKS);
-        FabricTagBuilder woodenColumnBuilder = getOrCreateTagBuilder(BwtBlockTags.WOODEN_COLUMN_BLOCKS);
-        FabricTagBuilder woodenPedestalBuilder = getOrCreateTagBuilder(BwtBlockTags.WOODEN_PEDESTAL_BLOCKS);
-        FabricTagBuilder woodenTableBuilder = getOrCreateTagBuilder(BwtBlockTags.WOODEN_TABLE_BLOCKS);
-        FabricTagBuilder columnBuilder = getOrCreateTagBuilder(BwtBlockTags.COLUMN_BLOCKS);
-        FabricTagBuilder pedestalBuilder = getOrCreateTagBuilder(BwtBlockTags.PEDESTAL_BLOCKS);
-        FabricTagBuilder tableBuilder = getOrCreateTagBuilder(BwtBlockTags.TABLE_BLOCKS);
+        ProvidedTagBuilder<Block, Block> woodenSidingBuilder = valueLookupBuilder(BwtBlockTags.WOODEN_SIDING_BLOCKS);
+        ProvidedTagBuilder<Block, Block> woodenMouldingBuilder = valueLookupBuilder(BwtBlockTags.WOODEN_MOULDING_BLOCKS);
+        ProvidedTagBuilder<Block, Block> woodenCornerBuilder = valueLookupBuilder(BwtBlockTags.WOODEN_CORNER_BLOCKS);
+        ProvidedTagBuilder<Block, Block> sidingBuilder = valueLookupBuilder(BwtBlockTags.SIDING_BLOCKS);
+        ProvidedTagBuilder<Block, Block> mouldingBuilder = valueLookupBuilder(BwtBlockTags.MOULDING_BLOCKS);
+        ProvidedTagBuilder<Block, Block> cornerBuilder = valueLookupBuilder(BwtBlockTags.CORNER_BLOCKS);
+        ProvidedTagBuilder<Block, Block> woodenColumnBuilder = valueLookupBuilder(BwtBlockTags.WOODEN_COLUMN_BLOCKS);
+        ProvidedTagBuilder<Block, Block> woodenPedestalBuilder = valueLookupBuilder(BwtBlockTags.WOODEN_PEDESTAL_BLOCKS);
+        ProvidedTagBuilder<Block, Block> woodenTableBuilder = valueLookupBuilder(BwtBlockTags.WOODEN_TABLE_BLOCKS);
+        ProvidedTagBuilder<Block, Block> columnBuilder = valueLookupBuilder(BwtBlockTags.COLUMN_BLOCKS);
+        ProvidedTagBuilder<Block, Block> pedestalBuilder = valueLookupBuilder(BwtBlockTags.PEDESTAL_BLOCKS);
+        ProvidedTagBuilder<Block, Block> tableBuilder = valueLookupBuilder(BwtBlockTags.TABLE_BLOCKS);
         BwtBlocks.sidingBlocks.stream().filter(MaterialInheritedBlock::isWood).forEach(woodenSidingBuilder::add);
         BwtBlocks.mouldingBlocks.stream().filter(MaterialInheritedBlock::isWood).forEach(woodenMouldingBuilder::add);
         BwtBlocks.cornerBlocks.stream().filter(MaterialInheritedBlock::isWood).forEach(woodenCornerBuilder::add);
@@ -279,18 +277,18 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
     }
 
     private void addVases() {
-        FabricTagBuilder vasesBuilder = getOrCreateTagBuilder(BwtBlockTags.VASES);
+        ProvidedTagBuilder<Block, Block> vasesBuilder = valueLookupBuilder(BwtBlockTags.VASES);
         DyeUtils.streamColorItemsSorted(BwtBlocks.vaseBlocks).forEach(vasesBuilder::add);
     }
 
     private void addWoolSlabs() {
-        FabricTagBuilder woolSlabsBuilder = getOrCreateTagBuilder(BwtBlockTags.WOOL_SLABS);
+        ProvidedTagBuilder<Block, Block> woolSlabsBuilder = valueLookupBuilder(BwtBlockTags.WOOL_SLABS);
         DyeUtils.streamColorItemsSorted(BwtBlocks.woolSlabBlocks).forEach(woolSlabsBuilder::add);
-        getOrCreateTagBuilder(BlockTags.SLABS).forceAddTag(BwtBlockTags.WOOL_SLABS);
+        valueLookupBuilder(BlockTags.SLABS).forceAddTag(BwtBlockTags.WOOL_SLABS);
     }
 
     protected void addSawTags() {
-        getOrCreateTagBuilder(BwtBlockTags.SURVIVES_SAW_BLOCK)
+        valueLookupBuilder(BwtBlockTags.SURVIVES_SAW_BLOCK)
                 .add(BwtBlocks.companionSlabBlock)
                 .add(Blocks.MELON_STEM)
                 .add(Blocks.PUMPKIN_STEM)
@@ -300,7 +298,7 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
                 .forceAddTag(BlockTags.FIRE)
                 .forceAddTag(BlockTags.SAPLINGS);
 
-        getOrCreateTagBuilder(BwtBlockTags.SAW_BREAKS_DROPS_LOOT)
+        valueLookupBuilder(BwtBlockTags.SAW_BREAKS_DROPS_LOOT)
                 .forceAddTag(BlockTags.FLOWERS)
                 .forceAddTag(BlockTags.LEAVES)
                 .forceAddTag(BlockTags.WOODEN_DOORS)
@@ -389,7 +387,7 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
     }
 
     protected void addDirtSlabCompatibilityTags() {
-        getOrCreateTagBuilder(BwtBlockTags.CAN_CONVERT_TO_PODZOL)
+        valueLookupBuilder(BwtBlockTags.CAN_CONVERT_TO_PODZOL)
                 .add(Blocks.DIRT)
                 .add(Blocks.GRASS_BLOCK)
                 .add(Blocks.COARSE_DIRT)
@@ -398,13 +396,13 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
                 .add(Blocks.MOSS_BLOCK)
                 .add(Blocks.MUD)
                 .add(Blocks.MUDDY_MANGROVE_ROOTS);
-        getOrCreateTagBuilder(BwtBlockTags.CAN_CONVERT_TO_PODZOL_SLAB)
+        valueLookupBuilder(BwtBlockTags.CAN_CONVERT_TO_PODZOL_SLAB)
                 .add(BwtBlocks.dirtSlabBlock)
                 .add(BwtBlocks.grassSlabBlock)
                 .add(BwtBlocks.myceliumSlabBlock);
     }
 
     protected void addModCompatibilityTags() {
-        getOrCreateTagBuilder(CompatibilityTags.UNAFFECTED_BY_RICH_SOIL).add(BwtBlocks.hempCropBlock);
+        valueLookupBuilder(CompatibilityTags.UNAFFECTED_BY_RICH_SOIL).add(BwtBlocks.hempCropBlock);
     }
 }

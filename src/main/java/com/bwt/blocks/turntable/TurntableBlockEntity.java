@@ -56,7 +56,7 @@ public class TurntableBlockEntity extends BlockEntity {
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, TurntableBlockEntity blockEntity) {
-        if (world.isClient) {
+        if (world.isClient()) {
             return;
         }
         if (!state.isOf(BwtBlocks.turntableBlock) || !state.get(TurntableBlock.MECH_POWERED)) {

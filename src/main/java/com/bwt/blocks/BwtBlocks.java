@@ -25,6 +25,7 @@ import com.bwt.blocks.turntable.TurntableBlock;
 import com.bwt.blocks.unfired_pottery.*;
 import com.bwt.utils.DyeUtils;
 import com.bwt.utils.Id;
+import com.bwt.utils.RegistrationUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.registry.FlattenableBlockRegistry;
@@ -36,6 +37,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.DyeColor;
 
@@ -44,271 +46,502 @@ import java.util.HashMap;
 
 public class BwtBlocks implements ModInitializer {
 
-    public static final AqueductBlock aqueductBlock = new AqueductBlock(AbstractBlock.Settings.copy(Blocks.BRICKS));
-	public static final Block anchorBlock = new AnchorBlock(AbstractBlock.Settings.create()
-            .hardness(2f)
-            .sounds(BlockSoundGroup.STONE)
-            .nonOpaque()
-            .solid()
-            .requiresTool()
+    public static final AqueductBlock aqueductBlock = RegistrationUtils.registerBlockAndItem(
+            "aqueduct_block",
+            AqueductBlock::new,
+            AbstractBlock.Settings.copy(Blocks.BRICKS)
     );
-	public static final Block axleBlock = new AxleBlock(AbstractBlock.Settings.create()
-            .hardness(2F)
-            .sounds(BlockSoundGroup.WOOD)
-            .burnable()
-            .solid()
-            .nonOpaque()
+    public static final Block anchorBlock = RegistrationUtils.registerBlockAndItem(
+            "anchor",
+            AnchorBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(2f)
+                    .sounds(BlockSoundGroup.STONE)
+                    .nonOpaque()
+                    .solid()
+                    .requiresTool()
     );
-    public static final Block axlePowerSourceBlock = new AxlePowerSourceBlock(AbstractBlock.Settings.copy(axleBlock));
-	public static final Block bellowsBlock = new BellowsBlock(AbstractBlock.Settings.copy(Blocks.OAK_PLANKS));
-	public static final BlockDispenserBlock blockDispenserBlock = new BlockDispenserBlock(AbstractBlock.Settings.copy(Blocks.DISPENSER)
-            .hardness(3.5f)
+    public static final Block axleBlock = RegistrationUtils.registerBlockAndItem(
+            "axle",
+            AxleBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(2F)
+                    .sounds(BlockSoundGroup.WOOD)
+                    .burnable()
+                    .solid()
+                    .nonOpaque()
     );
+    public static final Block axlePowerSourceBlock = RegistrationUtils.registerBlock(
+            "axle_power_source",
+            AxlePowerSourceBlock::new,
+            AbstractBlock.Settings.copy(axleBlock)
+    );
+    public static final Block bellowsBlock = RegistrationUtils.registerBlockAndItem(
+            "bellows",
+            BellowsBlock::new,
+            AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)
+    );
+    public static final BlockDispenserBlock blockDispenserBlock = RegistrationUtils.registerBlockAndItem(
+            "block_dispenser",
+            BlockDispenserBlock::new,
+            AbstractBlock.Settings.copy(Blocks.DISPENSER)
+                    .hardness(3.5f)
+    );
+
     public static final BloodWoodBlocks bloodWoodBlocks = new BloodWoodBlocks().initialize();
 
-	public static final Block buddyBlock = new BuddyBlock(AbstractBlock.Settings.create()
-            .hardness(3.5f)
-            .sounds(BlockSoundGroup.STONE)
-            .mapColor(MapColor.LIGHT_GRAY)
-            .requiresTool()
+    public static final Block buddyBlock = RegistrationUtils.registerBlockAndItem(
+            "buddy_block",
+            BuddyBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(3.5f)
+                    .sounds(BlockSoundGroup.STONE)
+                    .mapColor(MapColor.LIGHT_GRAY)
+                    .requiresTool()
     );
-	public static final Block cauldronBlock = new CauldronBlock(AbstractBlock.Settings.create()
-            .solidBlock(Blocks::never)
-            .nonOpaque()
-            .hardness(3.5f)
-            .resistance(10f)
-            .sounds(BlockSoundGroup.METAL)
-            .mapColor(MapColor.BLACK)
-            .requiresTool()
+    public static final Block cauldronBlock = RegistrationUtils.registerBlockAndItem(
+            "cauldron",
+            CauldronBlock::new,
+            AbstractBlock.Settings.create()
+                    .solidBlock(Blocks::never)
+                    .nonOpaque()
+                    .hardness(3.5f)
+                    .resistance(10f)
+                    .sounds(BlockSoundGroup.METAL)
+                    .mapColor(MapColor.BLACK)
+                    .requiresTool()
     );
-    public static final ArrayList<ColumnBlock> columnBlocks = new ArrayList<>();
-	public static final Block concentratedHellfireBlock = new Block(AbstractBlock.Settings.create().hardness(2f).requiresTool().mapColor(MapColor.BRIGHT_RED).sounds(BlockSoundGroup.METAL));
-	public static final Block companionCubeBlock = new CompanionCubeBlock(AbstractBlock.Settings.copy(Blocks.WHITE_WOOL)
-            .hardness(0.4f)
+    public static final Block concentratedHellfireBlock = RegistrationUtils.registerBlockAndItem(
+            "concentrated_hellfire_block",
+            AbstractBlock.Settings.create()
+                    .hardness(2f)
+                    .requiresTool()
+                    .mapColor(MapColor.BRIGHT_RED)
+                    .sounds(BlockSoundGroup.METAL)
     );
-	public static final Block companionSlabBlock = new CompanionSlabBlock(AbstractBlock.Settings.copy(companionCubeBlock));
-	public static final ArrayList<CornerBlock> cornerBlocks = new ArrayList<>();
-    public static final CreativePowerSourceBlock creativePowerSouceBlock = new CreativePowerSourceBlock(AbstractBlock.Settings.create()
-            .hardness(2F)
-            .sounds(BlockSoundGroup.WOOD)
-            .solid()
-            .nonOpaque()
+    public static final Block companionCubeBlock = RegistrationUtils.registerBlockAndItem(
+            "companion_cube",
+            CompanionCubeBlock::new,
+            AbstractBlock.Settings.copy(Blocks.WHITE_WOOL)
+                    .hardness(0.4f)
     );
-	public static final Block crucibleBlock = new CrucibleBlock(AbstractBlock.Settings.create()
-            .solidBlock(Blocks::never)
-            .nonOpaque()
-            .hardness(0.6f)
-            .resistance(3f)
-            .sounds(BlockSoundGroup.GLASS)
-            .mapColor(MapColor.WHITE_GRAY)
-            .requiresTool()
+    public static final Block companionSlabBlock = RegistrationUtils.registerBlockAndItem(
+            "companion_slab",
+            CompanionSlabBlock::new,
+            AbstractBlock.Settings.copy(companionCubeBlock));
+    public static final CreativePowerSourceBlock creativePowerSouceBlock = RegistrationUtils.registerBlockAndItem(
+            "creative_power_source",
+            CreativePowerSourceBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(2F)
+                    .sounds(BlockSoundGroup.WOOD)
+                    .solid()
+                    .nonOpaque()
     );
-	public static final Block detectorBlock = new DetectorBlock(AbstractBlock.Settings.copy(Blocks.DISPENSER)
-            .hardness(3.5f)
+    public static final Block crucibleBlock = RegistrationUtils.registerBlockAndItem(
+            "crucible",
+            CrucibleBlock::new,
+            AbstractBlock.Settings.create()
+                    .solidBlock(Blocks::never)
+                    .nonOpaque()
+                    .hardness(0.6f)
+                    .resistance(3f)
+                    .sounds(BlockSoundGroup.GLASS)
+                    .mapColor(MapColor.WHITE_GRAY)
+                    .requiresTool()
     );
-	public static final Block detectorLogicBlock = new DetectorLogicBlock(AbstractBlock.Settings.create()
-            .replaceable()
-            .noCollision()
-            .dropsNothing()
-            .pistonBehavior(PistonBehavior.DESTROY)
-            .air()
+    public static final Block detectorBlock = RegistrationUtils.registerBlockAndItem(
+            "detector_block",
+            DetectorBlock::new,
+            AbstractBlock.Settings.copy(Blocks.DISPENSER)
+                    .hardness(3.5f)
     );
-    public static final Block dungBlock = new Block(AbstractBlock.Settings.create().hardness(2f).mapColor(MapColor.BROWN).sounds(BlockSoundGroup.HONEY));
-    public static final Block gearBoxBlock = new GearBoxBlock(AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)
-            .hardness(2F)
+    public static final Block detectorLogicBlock = RegistrationUtils.registerBlock(
+            "detector_logic_block",
+            DetectorLogicBlock::new,
+            AbstractBlock.Settings.create()
+                    .replaceable()
+                    .noCollision()
+                    .dropsNothing()
+                    .pistonBehavior(PistonBehavior.DESTROY)
+                    .air()
     );
-	public static final Block grateBlock = new PaneBlock(AbstractBlock.Settings.create()
-            .hardness(0.5f)
-            .sounds(BlockSoundGroup.WOOD)
-            .nonOpaque()
+    public static final Block dungBlock = RegistrationUtils.registerBlockAndItem(
+            "dung_block",
+            AbstractBlock.Settings.create()
+                    .hardness(2f)
+                    .mapColor(MapColor.BROWN)
+                    .sounds(BlockSoundGroup.HONEY)
     );
-	public static final Block handCrankBlock = new HandCrankBlock(AbstractBlock.Settings.create()
-            .hardness(0.5f)
-            .sounds(BlockSoundGroup.WOOD)
-            .solid()
-            .nonOpaque()
-            .allowsSpawning(Blocks::never)
-            .suffocates(Blocks::never)
-            .blockVision(Blocks::never)
-            .requiresTool()
+    public static final Block gearBoxBlock = RegistrationUtils.registerBlockAndItem(
+            "gear_box",
+            GearBoxBlock::new,
+            AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)
+                    .hardness(2F)
     );
-	public static final Block hempCropBlock = new HempCropBlock(AbstractBlock.Settings.copy(Blocks.SUGAR_CANE));
-	public static final Block hibachiBlock = new HibachiBlock(AbstractBlock.Settings.create()
-            .hardness(3.5f)
-            .sounds(BlockSoundGroup.STONE)
-            .requiresTool()
+    public static final Block grateBlock = RegistrationUtils.registerBlockAndItem(
+            "grate",
+            PaneBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(0.5f)
+                    .sounds(BlockSoundGroup.WOOD)
+                    .nonOpaque()
     );
-	public static final Block hopperBlock = new MechHopperBlock(AbstractBlock.Settings.create()
-            .hardness(2f)
-            .sounds(BlockSoundGroup.WOOD)
-            .solid()
-            .nonOpaque()
+    public static final Block handCrankBlock = RegistrationUtils.registerBlockAndItem(
+            "hand_crank",
+            HandCrankBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(0.5f)
+                    .sounds(BlockSoundGroup.WOOD)
+                    .solid()
+                    .nonOpaque()
+                    .allowsSpawning(Blocks::never)
+                    .suffocates(Blocks::never)
+                    .blockVision(Blocks::never)
+                    .requiresTool()
     );
-//	public static final Block infernalEnchanterBlock = new InfernalEnchanterBlock(AbstractBlock.Settings.create());
-	public static final Block kilnBlock = new KilnBlock(AbstractBlock.Settings.copy(Blocks.BRICKS));
-	public static final LensBlock lensBlock = new LensBlock(AbstractBlock.Settings.create()
-            .hardness(3.5f)
-            .sounds(BlockSoundGroup.METAL)
-            .solid()
-            .pistonBehavior(PistonBehavior.BLOCK)
+    public static final Block hempCropBlock = RegistrationUtils.registerBlock(
+            "hemp_crop_block",
+            HempCropBlock::new,
+            AbstractBlock.Settings.copy(Blocks.SUGAR_CANE)
     );
-    public static final LensBeamBlock lensBeamBlock = new LensBeamBlock(AbstractBlock.Settings.create()
-            .replaceable()
-            .noCollision()
-            .dropsNothing()
-            .pistonBehavior(PistonBehavior.DESTROY)
-            .luminance(state -> state.get(LensBeamBlock.TERMINUS) ? 14 : 0)
-            .emissiveLighting(((state, world, pos) -> state.get(LensBeamBlock.TERMINUS)))
+    public static final Block hibachiBlock = RegistrationUtils.registerBlockAndItem(
+            "hibachi",
+            HibachiBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(3.5f)
+                    .sounds(BlockSoundGroup.STONE)
+                    .requiresTool()
     );
-    public static final LensBeamGlassBlock lensBeamGlassBlock = new LensBeamGlassBlock(
-            Blocks.GLASS,
+    public static final Block hopperBlock = RegistrationUtils.registerBlockAndItem(
+            "hopper",
+            MechHopperBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(2f)
+                    .sounds(BlockSoundGroup.WOOD)
+                    .solid()
+                    .nonOpaque()
+    );
+//    public static final Block infernalEnchanterBlock = RegistrationUtils.registerBlockAndItem(
+//            "infernal_enchanter",
+//            InfernalEnchanterBlock::new,
+//            AbstractBlock.Settings.create()
+//    );
+    public static final Block kilnBlock = RegistrationUtils.registerBlock(
+            "kiln",
+            KilnBlock::new,
+            AbstractBlock.Settings.copy(Blocks.BRICKS)
+    );
+    public static final LensBlock lensBlock = RegistrationUtils.registerBlockAndItem(
+            "lens",
+            LensBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(3.5f)
+                    .sounds(BlockSoundGroup.METAL)
+                    .solid()
+                    .pistonBehavior(PistonBehavior.BLOCK)
+    );
+    public static final LensBeamBlock lensBeamBlock = RegistrationUtils.registerBlock(
+            "lens_beam",
+            LensBeamBlock::new,
+            AbstractBlock.Settings.create()
+                    .replaceable()
+                    .noCollision()
+                    .dropsNothing()
+                    .pistonBehavior(PistonBehavior.DESTROY)
+                    .luminance(state -> state.get(LensBeamBlock.TERMINUS) ? 14 : 0)
+                    .emissiveLighting(((state, world, pos) -> state.get(LensBeamBlock.TERMINUS)))
+    );
+    public static final LensBeamGlassBlock lensBeamGlassBlock = RegistrationUtils.registerBlock(
+            "lens_beam_glass",
+            settings -> new LensBeamGlassBlock(Blocks.GLASS, settings),
             AbstractBlock.Settings
                     .copy(Blocks.GLASS)
                     .luminance(state -> state.get(LensBeamBlock.TERMINUS) ? 14 : 0)
                     .emissiveLighting(((state, world, pos) -> state.get(LensBeamBlock.TERMINUS)))
     );
-	public static final Block lightBlockBlock = new LightBlock(AbstractBlock.Settings.copy(Blocks.GLASS)
-            .strength(0.4f)
-            .luminance(Blocks.createLightLevelFromLitBlockState(15))
+    public static final Block lightBlockBlock = RegistrationUtils.registerBlockAndItem(
+            "light_block",
+            LightBlock::new,
+            AbstractBlock.Settings.copy(Blocks.GLASS)
+                    .strength(0.4f)
+                    .luminance(Blocks.createLightLevelFromLitBlockState(15))
     );
-	public static final Block millStoneBlock = new MillStoneBlock(AbstractBlock.Settings.copy(Blocks.DISPENSER)
-            .hardness(3.5f)
+    public static final Block millStoneBlock = RegistrationUtils.registerBlockAndItem(
+            "mill_stone",
+            MillStoneBlock::new,
+            AbstractBlock.Settings.copy(Blocks.DISPENSER)
+                    .hardness(3.5f)
     );
-	public static final MiningChargeBlock miningChargeBlock = new MiningChargeBlock(AbstractBlock.Settings.create()
-            .mapColor(MapColor.BROWN)
-            .breakInstantly()
-            .sounds(BlockSoundGroup.GRASS)
-            .burnable()
-            .solidBlock(Blocks::never)
+    public static final MiningChargeBlock miningChargeBlock = RegistrationUtils.registerBlockAndItem(
+            "mining_charge",
+            MiningChargeBlock::new,
+            AbstractBlock.Settings.create()
+                    .mapColor(MapColor.BROWN)
+                    .breakInstantly()
+                    .sounds(BlockSoundGroup.GRASS)
+                    .burnable()
+                    .solidBlock(Blocks::never)
     );
-	public static final ArrayList<MouldingBlock> mouldingBlocks = new ArrayList<>();
-	public static final Block obsidianPressurePlateBlock = new ObsidianPressurePlateBlock(AbstractBlock.Settings.copy(Blocks.STONE_PRESSURE_PLATE)
-            .strength(50.0f, 1200.0f)
+    public static final Block obsidianPressurePlateBlock = RegistrationUtils.registerBlockAndItem(
+            "obsidian_pressure_plate",
+            ObsidianPressurePlateBlock::new,
+            AbstractBlock.Settings.copy(Blocks.STONE_PRESSURE_PLATE)
+                    .strength(50.0f, 1200.0f)
     );
-	public static final Block obsidianDetectorRailBlock = new DetectorRailBlock(AbstractBlock.Settings.copy(Blocks.DETECTOR_RAIL)
-            .strength(25.0f, 1200.0f)
+    public static final Block obsidianDetectorRailBlock = RegistrationUtils.registerBlockAndItem(
+            "obsidian_detector_rail",
+            DetectorRailBlock::new,
+            AbstractBlock.Settings.copy(Blocks.DETECTOR_RAIL)
+                    .strength(25.0f, 1200.0f)
     );
-    public static final ArrayList<PedestalBlock> pedestalBlocks = new ArrayList<>();
-	public static final Block planterBlock = new PlanterBlock(AbstractBlock.Settings.copy(Blocks.TERRACOTTA)
-            .nonOpaque()
-            .hardness(0.6f)
+    public static final Block planterBlock = RegistrationUtils.registerBlockAndItem(
+            "planter",
+            PlanterBlock::new,
+            AbstractBlock.Settings.copy(Blocks.TERRACOTTA)
+                    .nonOpaque()
+                    .hardness(0.6f)
     );
-	public static final Block soilPlanterBlock = new SoilPlanterBlock(AbstractBlock.Settings.copy(planterBlock));
-	public static final Block soulSandPlanterBlock = new SoulSandPlanterBlock(AbstractBlock.Settings.copy(planterBlock));
-	public static final Block grassPlanterBlock = new GrassPlanterBlock(AbstractBlock.Settings.copy(planterBlock));
-    public static final Block paddingBlock = new PaddingBlock(AbstractBlock.Settings.create().hardness(2f).mapColor(MapColor.OFF_WHITE).sounds(BlockSoundGroup.WOOL));
-	public static final Block platformBlock = new PlatformBlock(AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)
-            .nonOpaque()
-            .allowsSpawning(Blocks::never)
-            .solidBlock(Blocks::never)
-            .suffocates(Blocks::never)
-            .blockVision(Blocks::never)
-            .hardness(2f)
-            .burnable()
+    public static final Block soilPlanterBlock = RegistrationUtils.registerBlockAndItem(
+            "soil_planter",
+            SoilPlanterBlock::new,
+            AbstractBlock.Settings.copy(planterBlock)
     );
-	public static final Block pulleyBlock = new PulleyBlock(AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)
-            .hardness(2f)
-            .mapColor(MapColor.TERRACOTTA_BROWN)
-            .pistonBehavior(PistonBehavior.IGNORE)
+    public static final Block soulSandPlanterBlock = RegistrationUtils.registerBlockAndItem(
+            "soul_sand_planter",
+            SoulSandPlanterBlock::new,
+            AbstractBlock.Settings.copy(planterBlock)
     );
-    public static final Block redstoneClutchBlock = new RedstoneClutchBlock(AbstractBlock.Settings.copy(gearBoxBlock));
-    public static final Block ropeCoilBlock = new Block(AbstractBlock.Settings.create().hardness(1f).mapColor(MapColor.BROWN).sounds(BlockSoundGroup.GRASS));
-	public static final RopeBlock ropeBlock = new RopeBlock(AbstractBlock.Settings.create()
-            .hardness(0.5f)
-            .sounds(BlockSoundGroup.GRASS)
-            .pistonBehavior(PistonBehavior.DESTROY)
+    public static final Block grassPlanterBlock = RegistrationUtils.registerBlockAndItem(
+            "grass_planter",
+            GrassPlanterBlock::new,
+            AbstractBlock.Settings.copy(planterBlock)
     );
-	public static final Block sawBlock = new SawBlock(AbstractBlock.Settings.create()
-            .hardness(2f)
-            .burnable()
-            .sounds(BlockSoundGroup.WOOD)
-            .nonOpaque()
+    public static final Block paddingBlock = RegistrationUtils.registerBlockAndItem(
+            "padding_block",
+            PaddingBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(2f)
+                    .mapColor(MapColor.OFF_WHITE)
+                    .sounds(BlockSoundGroup.WOOL)
     );
-	public static final ScrewPumpBlock screwPumpBlock = new ScrewPumpBlock(AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)
-            .hardness(2f)
-            .resistance(5f)
+    public static final Block platformBlock = RegistrationUtils.registerBlockAndItem(
+            "platform",
+            PlatformBlock::new,
+            AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)
+                    .nonOpaque()
+                    .allowsSpawning(Blocks::never)
+                    .solidBlock(Blocks::never)
+                    .suffocates(Blocks::never)
+                    .blockVision(Blocks::never)
+                    .hardness(2f)
+                    .burnable()
     );
-    public static final ArrayList<SidingBlock> sidingBlocks = new ArrayList<>();
-	public static final Block slatsBlock = new PaneBlock(AbstractBlock.Settings.create()
-            .strength(0.5f)
-            .sounds(BlockSoundGroup.WOOD)
-            .burnable()
-            .nonOpaque()
+    public static final Block pulleyBlock = RegistrationUtils.registerBlockAndItem(
+            "pulley",
+            PulleyBlock::new,
+            AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)
+                    .hardness(2f)
+                    .mapColor(MapColor.TERRACOTTA_BROWN)
+                    .pistonBehavior(PistonBehavior.IGNORE)
     );
-    public static final Block soapBlock = new SimpleFacingBlock(AbstractBlock.Settings.create().hardness(2f).mapColor(MapColor.PINK).sounds(BlockSoundGroup.SLIME));
-//	public static final Block stakeBlock = new StakeBlock(AbstractBlock.Settings.create());
-    public static final StokedFireBlock stokedFireBlock = new StokedFireBlock(AbstractBlock.Settings.create()
-            .mapColor(MapColor.BRIGHT_RED)
-            .replaceable()
-            .noCollision()
-            .breakInstantly()
-            .luminance(state -> 15)
-            .sounds(BlockSoundGroup.WOOL)
-            .pistonBehavior(PistonBehavior.DESTROY)
+    public static final Block redstoneClutchBlock = RegistrationUtils.registerBlockAndItem(
+            "redstone_clutch",
+            RedstoneClutchBlock::new,
+            AbstractBlock.Settings.copy(gearBoxBlock));
+    public static final Block ropeCoilBlock = RegistrationUtils.registerBlockAndItem(
+            "rope_coil_block",
+            AbstractBlock.Settings.create()
+                    .hardness(1f)
+                    .mapColor(MapColor.BROWN)
+                    .sounds(BlockSoundGroup.GRASS)
     );
-    public static final Block stoneDetectorRailBlock = new DetectorRailBlock(AbstractBlock.Settings.copy(Blocks.DETECTOR_RAIL));
-	public static final Block soulForgeBlock = new SoulForgeBlock(AbstractBlock.Settings.copy(Blocks.ANVIL));
-    public static final ArrayList<TableBlock> tableBlocks = new ArrayList<>();
-	public static final Block turntableBlock = new TurntableBlock(AbstractBlock.Settings.create()
-            .strength(2f)
-            .sounds(BlockSoundGroup.STONE)
-            .mapColor(Blocks.PISTON_HEAD.getDefaultMapColor())
+    public static final RopeBlock ropeBlock = RegistrationUtils.registerBlock(
+            "rope",
+            RopeBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(0.5f)
+                    .sounds(BlockSoundGroup.GRASS)
+                    .pistonBehavior(PistonBehavior.DESTROY)
     );
-    public static final UnfiredPotteryBlock unfiredDecoratedPotBlock = new UnfiredDecoratedPotBlock(AbstractBlock.Settings.copy(Blocks.CLAY)
-            .nonOpaque()
-            .solidBlock(Blocks::never)
+    public static final Block sawBlock = RegistrationUtils.registerBlockAndItem(
+            "saw",
+            SawBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(2f)
+                    .burnable()
+                    .sounds(BlockSoundGroup.WOOD)
+                    .nonOpaque()
     );
-    public static final UnfiredPotteryBlock unfiredDecoratedPotBlockWithSherds = new UnfiredDecoratedPotBlockWithSherds(AbstractBlock.Settings.copy(Blocks.CLAY)
-            .nonOpaque()
-            .solidBlock(Blocks::never)
+    public static final ScrewPumpBlock screwPumpBlock = RegistrationUtils.registerBlockAndItem(
+            "screw_pump",
+            ScrewPumpBlock::new,
+            AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)
+                    .hardness(2f)
+                    .resistance(5f)
     );
-	public static final UnfiredPotteryBlock unfiredCrucibleBlock = new UnfiredCrucibleBlock(AbstractBlock.Settings.copy(Blocks.CLAY)
-            .nonOpaque()
-            .solidBlock(Blocks::never)
+    public static final Block slatsBlock = RegistrationUtils.registerBlockAndItem(
+            "slats",
+            PaneBlock::new,
+            AbstractBlock.Settings.create()
+                    .strength(0.5f)
+                    .sounds(BlockSoundGroup.WOOD)
+                    .burnable()
+                    .nonOpaque()
     );
-	public static final UnfiredPotteryBlock unfiredPlanterBlock = new UnfiredPlanterBlock(AbstractBlock.Settings.copy(Blocks.CLAY)
-            .nonOpaque()
-            .solidBlock(Blocks::never)
+    public static final Block soapBlock = RegistrationUtils.registerBlockAndItem(
+            "soap_block",
+            SimpleFacingBlock::new,
+            AbstractBlock.Settings.create()
+                    .hardness(2f)
+                    .mapColor(MapColor.PINK)
+                    .sounds(BlockSoundGroup.SLIME)
     );
-	public static final UnfiredPotteryBlock unfiredVaseBlock = new UnfiredVaseBlock(AbstractBlock.Settings.copy(Blocks.CLAY)
-            .nonOpaque()
-            .solidBlock(Blocks::never)
+//    public static final Block stakeBlock = RegistrationUtils.registerBlockAndItem(
+//            "stake",
+//            StakeBlock::new,
+//            AbstractBlock.Settings.create()
+//    );
+    public static final StokedFireBlock stokedFireBlock = RegistrationUtils.registerBlock(
+            "stoked_fire",
+            StokedFireBlock::new,
+            AbstractBlock.Settings.create()
+                    .mapColor(MapColor.BRIGHT_RED)
+                    .replaceable()
+                    .noCollision()
+                    .breakInstantly()
+                    .luminance(state -> 15)
+                    .sounds(BlockSoundGroup.WOOL)
+                    .pistonBehavior(PistonBehavior.DESTROY)
     );
-	public static final UnfiredPotteryBlock unfiredUrnBlock = new UnfiredUrnBlock(AbstractBlock.Settings.copy(Blocks.CLAY)
-            .nonOpaque()
-            .solidBlock(Blocks::never)
+    public static final Block stoneDetectorRailBlock = RegistrationUtils.registerBlockAndItem(
+            "stone_detector_rail",
+            DetectorRailBlock::new,
+            AbstractBlock.Settings.copy(Blocks.DETECTOR_RAIL)
     );
-    public static final UnfiredPotteryBlock unfiredFlowerPotBlock = new UnfiredFlowerPotBlock(AbstractBlock.Settings.copy(Blocks.CLAY)
-            .nonOpaque()
-            .solidBlock(Blocks::never)
+    public static final Block soulForgeBlock = RegistrationUtils.registerBlockAndItem(
+            "soul_forge",
+            SoulForgeBlock::new,
+            AbstractBlock.Settings.copy(Blocks.ANVIL)
     );
-	public static final Block urnBlock = new UrnBlock(AbstractBlock.Settings.copy(Blocks.TERRACOTTA)
-            .nonOpaque()
-            .solidBlock(Blocks::never)
-            .allowsSpawning(Blocks::never)
-            .hardness(2f)
+    public static final Block turntableBlock = RegistrationUtils.registerBlockAndItem(
+            "turntable",
+            TurntableBlock::new,
+            AbstractBlock.Settings.create()
+                    .strength(2f)
+                    .sounds(BlockSoundGroup.STONE)
+                    .mapColor(Blocks.PISTON_HEAD.getDefaultMapColor())
     );
-	public static final HashMap<DyeColor, VaseBlock> vaseBlocks = new HashMap<>();
-	public static final Block wickerPaneBlock = new PaneBlock(AbstractBlock.Settings.create()
-            .strength(0.5f)
-            .sounds(BlockSoundGroup.GRASS)
-            .burnable()
-            .nonOpaque()
+    public static final UnfiredPotteryBlock unfiredDecoratedPotBlock = RegistrationUtils.registerBlockAndItem(
+            "unfired_decorated_pot",
+            UnfiredDecoratedPotBlock::new,
+            AbstractBlock.Settings.copy(Blocks.CLAY)
+                    .nonOpaque()
+                    .solidBlock(Blocks::never)
     );
-    public static final Block wickerBlock = new Block(AbstractBlock.Settings.create().hardness(2f).burnable().mapColor(MapColor.SPRUCE_BROWN).sounds(BlockSoundGroup.GRASS));
-    public static final Block wickerSlabBlock = new SlabBlock(AbstractBlock.Settings.copy(wickerBlock));
-    public static final HashMap<DyeColor, SlabBlock> woolSlabBlocks = new HashMap<>();
-    public static final Block vineTrapBlock = new VineTrapBlock(AbstractBlock.Settings.copy(Blocks.OAK_LEAVES)
-            .allowsSpawning(Blocks::never)
-            .noCollision()
+    public static final UnfiredPotteryBlock unfiredDecoratedPotBlockWithSherds = registerUnfiredDecoratedPotBlockWithSherds();
+    public static final UnfiredPotteryBlock unfiredCrucibleBlock = RegistrationUtils.registerBlockAndItem(
+            "unfired_crucible",
+            UnfiredCrucibleBlock::new,
+            AbstractBlock.Settings.copy(Blocks.CLAY)
+                    .nonOpaque()
+                    .solidBlock(Blocks::never)
     );
-    public static final Block dirtSlabBlock = new DirtSlabBlock(AbstractBlock.Settings.copy(Blocks.DIRT), Blocks.DIRT);
-    public static final Block dirtPathSlabBlock = new DirtPathSlabBlock(AbstractBlock.Settings.copy(Blocks.DIRT_PATH), Blocks.DIRT_PATH);
-    public static final Block grassSlabBlock = new GrassSlabBlock(AbstractBlock.Settings.copy(Blocks.GRASS_BLOCK), Blocks.GRASS_BLOCK);
-    public static final Block myceliumSlabBlock = new MyceliumSlabBlock(AbstractBlock.Settings.copy(Blocks.MYCELIUM), Blocks.MYCELIUM);
-    public static final Block podzolSlabBlock = new MyceliumSlabBlock(AbstractBlock.Settings.copy(Blocks.PODZOL), Blocks.PODZOL);
-
-    public static final Block netherGroth = new NetherGrothBlock(AbstractBlock.Settings.create()
+    public static final UnfiredPotteryBlock unfiredPlanterBlock = RegistrationUtils.registerBlockAndItem(
+            "unfired_planter",
+            UnfiredPlanterBlock::new,
+            AbstractBlock.Settings.copy(Blocks.CLAY)
+                    .nonOpaque()
+                    .solidBlock(Blocks::never)
+    );
+    public static final UnfiredPotteryBlock unfiredVaseBlock = RegistrationUtils.registerBlockAndItem(
+            "unfired_vase",
+            UnfiredVaseBlock::new,
+            AbstractBlock.Settings.copy(Blocks.CLAY)
+                    .nonOpaque()
+                    .solidBlock(Blocks::never)
+    );
+    public static final UnfiredPotteryBlock unfiredUrnBlock = RegistrationUtils.registerBlockAndItem(
+            "unfired_urn",
+            UnfiredUrnBlock::new,
+            AbstractBlock.Settings.copy(Blocks.CLAY)
+                    .nonOpaque()
+                    .solidBlock(Blocks::never)
+    );
+    public static final UnfiredPotteryBlock unfiredFlowerPotBlock = RegistrationUtils.registerBlockAndItem(
+            "unfired_flower_pot",
+            UnfiredFlowerPotBlock::new,
+            AbstractBlock.Settings.copy(Blocks.CLAY)
+                    .nonOpaque()
+                    .solidBlock(Blocks::never)
+    );
+    public static final Block urnBlock = RegistrationUtils.registerBlockAndItem(
+            "urn",
+            UrnBlock::new,
+            AbstractBlock.Settings.copy(Blocks.TERRACOTTA)
+                    .nonOpaque()
+                    .solidBlock(Blocks::never)
+                    .allowsSpawning(Blocks::never)
+                    .hardness(2f)
+    );
+    public static final Block wickerPaneBlock = RegistrationUtils.registerBlockAndItem(
+            "wicker",
+            PaneBlock::new,
+            AbstractBlock.Settings.create()
+                    .strength(0.5f)
+                    .sounds(BlockSoundGroup.GRASS)
+                    .burnable()
+                    .nonOpaque()
+    );
+    public static final Block wickerBlock = RegistrationUtils.registerBlockAndItem(
+            "wicker_block",
+            AbstractBlock.Settings.create()
+                    .hardness(2f)
+                    .burnable()
+                    .mapColor(MapColor.SPRUCE_BROWN)
+                    .sounds(BlockSoundGroup.GRASS)
+    );
+    public static final Block wickerSlabBlock = RegistrationUtils.registerBlockAndItem(
+            "wicker_slab",
+            SlabBlock::new,
+            AbstractBlock.Settings.copy(wickerBlock)
+    );
+    public static final Block vineTrapBlock = RegistrationUtils.registerBlockAndItem(
+            "vine_trap",
+            VineTrapBlock::new,
+            AbstractBlock.Settings.copy(Blocks.OAK_LEAVES)
+                    .allowsSpawning(Blocks::never)
+                    .noCollision()
+    );
+    public static final Block dirtSlabBlock = RegistrationUtils.registerBlockAndItem(
+            "dirt_slab",
+            settings -> new DirtSlabBlock(settings, Blocks.DIRT),
+            AbstractBlock.Settings.copy(Blocks.DIRT)
+    );
+    public static final Block dirtPathSlabBlock = RegistrationUtils.registerBlockAndItem(
+            "dirt_path_slab",
+            settings -> new DirtPathSlabBlock(settings, Blocks.DIRT_PATH),
+            AbstractBlock.Settings.copy(Blocks.DIRT_PATH)
+    );
+    public static final Block grassSlabBlock = RegistrationUtils.registerBlockAndItem(
+            "grass_slab",
+            settings -> new GrassSlabBlock(settings, Blocks.GRASS_BLOCK),
+            AbstractBlock.Settings.copy(Blocks.GRASS_BLOCK)
+    );
+    public static final Block myceliumSlabBlock = RegistrationUtils.registerBlockAndItem(
+            "mycelium_slab",
+            settings -> new MyceliumSlabBlock(settings, Blocks.MYCELIUM),
+            AbstractBlock.Settings.copy(Blocks.MYCELIUM)
+    );
+    public static final Block podzolSlabBlock = RegistrationUtils.registerBlockAndItem(
+            "podzol_slab",
+            settings -> new MyceliumSlabBlock(settings, Blocks.PODZOL),
+            AbstractBlock.Settings.copy(Blocks.PODZOL)
+    );
+    public static final Block netherGroth = RegistrationUtils.registerBlockAndItem(
+            "nether_groth",
+            NetherGrothBlock::new,
+            AbstractBlock.Settings.create()
                     .mapColor(MapColor.DARK_RED)
                     .solidBlock(Blocks::never)
                     .ticksRandomly()
@@ -318,8 +551,10 @@ public class BwtBlocks implements ModInitializer {
                     .pistonBehavior(PistonBehavior.DESTROY)
                     .velocityMultiplier(0.8f)
     );
-
-    public static final Block grothedNetherrackBlock = new GrothedNetherrackBlock(AbstractBlock.Settings.create()
+    public static final Block grothedNetherrackBlock = RegistrationUtils.registerBlock(
+            "grothed_netherrack",
+            GrothedNetherrackBlock::new,
+            AbstractBlock.Settings.create()
                     .mapColor(MapColor.DARK_RED)
                     .instrument(NoteBlockInstrument.BASEDRUM)
                     .requiresTool()
@@ -327,200 +562,33 @@ public class BwtBlocks implements ModInitializer {
                     .sounds(BlockSoundGroup.NETHERRACK)
     );
 
-    @Override
-    public void onInitialize() {
-        // Axles
-        Registry.register(Registries.BLOCK, Id.of("axle"), axleBlock);
-        Registry.register(Registries.ITEM, Id.of("axle"), new BlockItem(axleBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("axle_power_source"), axlePowerSourceBlock);
-        Registry.register(Registries.BLOCK, Id.of("creative_power_source"), creativePowerSouceBlock);
-        Registry.register(Registries.ITEM, Id.of("creative_power_source"), new BlockItem(creativePowerSouceBlock, new Item.Settings()));
-        // Gearbox
-        Registry.register(Registries.BLOCK, Id.of("gear_box"), gearBoxBlock);
-        Registry.register(Registries.ITEM, Id.of("gear_box"), new BlockItem(gearBoxBlock, new Item.Settings()));
-        // Redstone Clutch
-        Registry.register(Registries.BLOCK, Id.of("redstone_clutch"), redstoneClutchBlock);
-        Registry.register(Registries.ITEM, Id.of("redstone_clutch"), new BlockItem(redstoneClutchBlock, new Item.Settings()));
-        // Hibachi
-        Registry.register(Registries.BLOCK, Id.of("hibachi"), hibachiBlock);
-        Registry.register(Registries.ITEM, Id.of("hibachi"), new BlockItem(hibachiBlock, new Item.Settings()));
-        // Light Block
-        Registry.register(Registries.BLOCK, Id.of("light_block"), lightBlockBlock);
-        Registry.register(Registries.ITEM, Id.of("light_block"), new BlockItem(lightBlockBlock, new Item.Settings()));
-        // Block Dispenser
-        Registry.register(Registries.BLOCK, Id.of("block_dispenser"), blockDispenserBlock);
-        Registry.register(Registries.ITEM, Id.of("block_dispenser"), new BlockItem(blockDispenserBlock, new Item.Settings()));
-        // Cauldron / Stewing Pot
-        Registry.register(Registries.BLOCK, Id.of("cauldron"), cauldronBlock);
-        Registry.register(Registries.ITEM, Id.of("cauldron"), new BlockItem(cauldronBlock, new Item.Settings()));
-        // Obsidian pressure plate
-        Registry.register(Registries.BLOCK, Id.of("obsidian_pressure_plate"), obsidianPressurePlateBlock);
-        Registry.register(Registries.ITEM, Id.of("obsidian_pressure_plate"), new BlockItem(obsidianPressurePlateBlock, new Item.Settings()));
-        // Hemp crop
-        Registry.register(Registries.BLOCK, Id.of("hemp_crop_block"), hempCropBlock);
-        // Detector Block
-        Registry.register(Registries.BLOCK, Id.of("detector_block"), detectorBlock);
-        Registry.register(Registries.ITEM, Id.of("detector_block"), new BlockItem(detectorBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("detector_logic_block"), detectorLogicBlock);
-        // Mill Stone
-        Registry.register(Registries.BLOCK, Id.of("mill_stone"), millStoneBlock);
-        Registry.register(Registries.ITEM, Id.of("mill_stone"), new BlockItem(millStoneBlock, new Item.Settings()));
-        // Companion Cube
-        Registry.register(Registries.BLOCK, Id.of("companion_cube"), companionCubeBlock);
-        Registry.register(Registries.ITEM, Id.of("companion_cube"), new BlockItem(companionCubeBlock, new Item.Settings()));
-        // Companion Slab
-        Registry.register(Registries.BLOCK, Id.of("companion_slab"), companionSlabBlock);
-        Registry.register(Registries.ITEM, Id.of("companion_slab"), new BlockItem(companionSlabBlock, new Item.Settings()));
-        // Hand Crank
-        Registry.register(Registries.BLOCK, Id.of("hand_crank"), handCrankBlock);
-        Registry.register(Registries.ITEM, Id.of("hand_crank"), new BlockItem(handCrankBlock, new Item.Settings()));
-        // Anchor
-        Registry.register(Registries.BLOCK, Id.of("anchor"), anchorBlock);
-        Registry.register(Registries.ITEM, Id.of("anchor"), new BlockItem(anchorBlock, new Item.Settings()));
-        // Rope
-        Registry.register(Registries.BLOCK, Id.of("rope"), ropeBlock);
-        // Stone Detector Rail
-        Registry.register(Registries.BLOCK, Id.of("stone_detector_rail"), stoneDetectorRailBlock);
-        Registry.register(Registries.ITEM, Id.of("stone_detector_rail"), new BlockItem(stoneDetectorRailBlock, new Item.Settings()));
-        // Obsidian Detector Rail
-        Registry.register(Registries.BLOCK, Id.of("obsidian_detector_rail"), obsidianDetectorRailBlock);
-        Registry.register(Registries.ITEM, Id.of("obsidian_detector_rail"), new BlockItem(obsidianDetectorRailBlock, new Item.Settings()));
-        // Bwt Hopper
-        Registry.register(Registries.BLOCK, Id.of("hopper"), hopperBlock);
-        Registry.register(Registries.ITEM, Id.of("hopper"), new BlockItem(hopperBlock, new Item.Settings()));
-        // Grate
-        Registry.register(Registries.BLOCK, Id.of("grate"), grateBlock);
-        Registry.register(Registries.ITEM, Id.of("grate"), new BlockItem(grateBlock, new Item.Settings()));
-        // Slats
-        Registry.register(Registries.BLOCK, Id.of("slats"), slatsBlock);
-        Registry.register(Registries.ITEM, Id.of("slats"), new BlockItem(slatsBlock, new Item.Settings()));
-        // Wicker
-        Registry.register(Registries.BLOCK, Id.of("wicker"), wickerPaneBlock);
-        Registry.register(Registries.ITEM, Id.of("wicker"), new BlockItem(wickerPaneBlock, new Item.Settings()));
-        // Saw
-        Registry.register(Registries.BLOCK, Id.of("saw"), sawBlock);
-        Registry.register(Registries.ITEM, Id.of("saw"), new BlockItem(sawBlock, new Item.Settings()));
-        // Pulley
-        Registry.register(Registries.BLOCK, Id.of("pulley"), pulleyBlock);
-        Registry.register(Registries.ITEM, Id.of("pulley"), new BlockItem(pulleyBlock, new Item.Settings()));
-        // Platform
-        Registry.register(Registries.BLOCK, Id.of("platform"), platformBlock);
-        Registry.register(Registries.ITEM, Id.of("platform"), new BlockItem(platformBlock, new Item.Settings()));
-        // Turntable
-        Registry.register(Registries.BLOCK, Id.of("turntable"), turntableBlock);
-        Registry.register(Registries.ITEM, Id.of("turntable"), new BlockItem(turntableBlock, new Item.Settings()));
-        // Stoked Fire
-        Registry.register(Registries.BLOCK, Id.of("stoked_fire"), stokedFireBlock);
-        // Bellows
-        Registry.register(Registries.BLOCK, Id.of("bellows"), bellowsBlock);
-        Registry.register(Registries.ITEM, Id.of("bellows"), new BlockItem(bellowsBlock, new Item.Settings()));
-        // Unfired Pottery
-        Registry.register(Registries.BLOCK, Id.of("unfired_decorated_pot_with_sherds"), unfiredDecoratedPotBlockWithSherds);
-        Registry.register(Registries.ITEM, Id.of("unfired_decorated_pot_with_sherds"), new BlockItem(unfiredDecoratedPotBlockWithSherds, new Item.Settings().component(DataComponentTypes.POT_DECORATIONS, Sherds.DEFAULT)));
-        Registry.register(Registries.BLOCK, Id.of("unfired_decorated_pot"), unfiredDecoratedPotBlock);
-        Registry.register(Registries.ITEM, Id.of("unfired_decorated_pot"), new BlockItem(unfiredDecoratedPotBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("unfired_crucible"), unfiredCrucibleBlock);
-        Registry.register(Registries.ITEM, Id.of("unfired_crucible"), new BlockItem(unfiredCrucibleBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("unfired_planter"), unfiredPlanterBlock);
-        Registry.register(Registries.ITEM, Id.of("unfired_planter"), new BlockItem(unfiredPlanterBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("unfired_vase"), unfiredVaseBlock);
-        Registry.register(Registries.ITEM, Id.of("unfired_vase"), new BlockItem(unfiredVaseBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("unfired_urn"), unfiredUrnBlock);
-        Registry.register(Registries.ITEM, Id.of("unfired_urn"), new BlockItem(unfiredUrnBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("unfired_flower_pot"), unfiredFlowerPotBlock);
-        Registry.register(Registries.ITEM, Id.of("unfired_flower_pot"), new BlockItem(unfiredFlowerPotBlock, new Item.Settings()));
-        // Kiln
-        Registry.register(Registries.BLOCK, Id.of("kiln"), kilnBlock);
-        // Blood Wood
-        bloodWoodBlocks.register();
-        // Mini blocks
+    public static final ArrayList<SidingBlock> sidingBlocks = new ArrayList<>();
+    public static final ArrayList<MouldingBlock> mouldingBlocks = new ArrayList<>();
+    public static final ArrayList<CornerBlock> cornerBlocks = new ArrayList<>();
+    public static final ArrayList<ColumnBlock> columnBlocks = new ArrayList<>();
+    public static final ArrayList<PedestalBlock> pedestalBlocks = new ArrayList<>();
+    public static final ArrayList<TableBlock> tableBlocks = new ArrayList<>();
+
+    public static final HashMap<DyeColor, SlabBlock> woolSlabBlocks = new HashMap<>();
+    public static final HashMap<DyeColor, VaseBlock> vaseBlocks = new HashMap<>();
+
+    static {
         MaterialInheritedBlock.registerMaterialBlocks(
                 sidingBlocks, mouldingBlocks, cornerBlocks,
                 columnBlocks, pedestalBlocks, tableBlocks
         );
-        // Crucible
-        Registry.register(Registries.BLOCK, Id.of("crucible"), crucibleBlock);
-        Registry.register(Registries.ITEM, Id.of("crucible"), new BlockItem(crucibleBlock, new Item.Settings()));
-        // Planters
-        Registry.register(Registries.BLOCK, Id.of("planter"), planterBlock);
-        Registry.register(Registries.ITEM, Id.of("planter"), new BlockItem(planterBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("soil_planter"), soilPlanterBlock);
-        Registry.register(Registries.ITEM, Id.of("soil_planter"), new BlockItem(soilPlanterBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("soul_sand_planter"), soulSandPlanterBlock);
-        Registry.register(Registries.ITEM, Id.of("soul_sand_planter"), new BlockItem(soulSandPlanterBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("grass_planter"), grassPlanterBlock);
-        Registry.register(Registries.ITEM, Id.of("grass_planter"), new BlockItem(grassPlanterBlock, new Item.Settings()));
-        // Vases
         VaseBlock.registerColors(vaseBlocks);
-        // Urn
-        Registry.register(Registries.BLOCK, Id.of("urn"), urnBlock);
-        Registry.register(Registries.ITEM, Id.of("urn"), new BlockItem(urnBlock, new Item.Settings()));
-        // SoulForge
-        Registry.register(Registries.BLOCK, Id.of("soul_forge"), soulForgeBlock);
-        Registry.register(Registries.ITEM, Id.of("soul_forge"), new BlockItem(soulForgeBlock, new Item.Settings()));
-        // Wool slabs
-        DyeUtils.WOOL_COLORS.forEach((dyeColor, woolBlock) -> {
-            SlabBlock woolSlabBlock = new SlabBlock(AbstractBlock.Settings.copy(woolBlock));
-            woolSlabBlocks.put(dyeColor, woolSlabBlock);
-            Registry.register(Registries.BLOCK, Id.of(dyeColor.getName() + "_wool_slab"), woolSlabBlock);
-            Registry.register(Registries.ITEM, Id.of(dyeColor.getName() + "_wool_slab"), new BlockItem(woolSlabBlock, new Item.Settings()));
-        });
-        // Buddy Block
-        Registry.register(Registries.BLOCK, Id.of("buddy_block"), buddyBlock);
-        Registry.register(Registries.ITEM, Id.of("buddy_block"), new BlockItem(buddyBlock, new Item.Settings()));
-        // Aesthetic compacting blocks
-        Registry.register(Registries.BLOCK, Id.of("soap_block"), soapBlock);
-        Registry.register(Registries.ITEM, Id.of("soap_block"), new BlockItem(soapBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("wicker_block"), wickerBlock);
-        Registry.register(Registries.ITEM, Id.of("wicker_block"), new BlockItem(wickerBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("dung_block"), dungBlock);
-        Registry.register(Registries.ITEM, Id.of("dung_block"), new BlockItem(dungBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("padding_block"), paddingBlock);
-        Registry.register(Registries.ITEM, Id.of("padding_block"), new BlockItem(paddingBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("rope_coil_block"), ropeCoilBlock);
-        Registry.register(Registries.ITEM, Id.of("rope_coil_block"), new BlockItem(ropeCoilBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("concentrated_hellfire_block"), concentratedHellfireBlock);
-        Registry.register(Registries.ITEM, Id.of("concentrated_hellfire_block"), new BlockItem(concentratedHellfireBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("wicker_slab"), wickerSlabBlock);
-        Registry.register(Registries.ITEM, Id.of("wicker_slab"), new BlockItem(wickerSlabBlock, new Item.Settings()));
-        // Mining charge
-        Registry.register(Registries.BLOCK, Id.of("mining_charge"), miningChargeBlock);
-        Registry.register(Registries.ITEM, Id.of("mining_charge"), new BlockItem(miningChargeBlock, new Item.Settings()));
-        // Vine trap
-        Registry.register(Registries.BLOCK, Id.of("vine_trap"), vineTrapBlock);
-        Registry.register(Registries.ITEM, Id.of("vine_trap"), new BlockItem(vineTrapBlock, new Item.Settings()));
-        // Lens
-        Registry.register(Registries.BLOCK, Id.of("lens"), lensBlock);
-        Registry.register(Registries.ITEM, Id.of("lens"), new BlockItem(lensBlock, new Item.Settings()));
-        Registry.register(Registries.BLOCK, Id.of("lens_beam"), lensBeamBlock);
-        Registry.register(Registries.BLOCK, Id.of("lens_beam_glass"), lensBeamGlassBlock);
-        // Dirt Slab
-        Registry.register(Registries.BLOCK, Id.of("dirt_slab"), dirtSlabBlock);
-        Registry.register(Registries.ITEM, Id.of("dirt_slab"), new BlockItem(dirtSlabBlock, new Item.Settings()));
-        // Dirt Path Slab
-        Registry.register(Registries.BLOCK, Id.of("dirt_path_slab"), dirtPathSlabBlock);
-        Registry.register(Registries.ITEM, Id.of("dirt_path_slab"), new BlockItem(dirtPathSlabBlock, new Item.Settings()));
-        // Grass Slab
-        Registry.register(Registries.BLOCK, Id.of("grass_slab"), grassSlabBlock);
-        Registry.register(Registries.ITEM, Id.of("grass_slab"), new BlockItem(grassSlabBlock, new Item.Settings()));
-        // Mycelium Slab
-        Registry.register(Registries.BLOCK, Id.of("mycelium_slab"), myceliumSlabBlock);
-        Registry.register(Registries.ITEM, Id.of("mycelium_slab"), new BlockItem(myceliumSlabBlock, new Item.Settings()));
-        // Podzol Slab
-        Registry.register(Registries.BLOCK, Id.of("podzol_slab"), podzolSlabBlock);
-        Registry.register(Registries.ITEM, Id.of("podzol_slab"), new BlockItem(podzolSlabBlock, new Item.Settings()));
-        // Nether Groth
-        Registry.register(Registries.BLOCK, Id.of("nether_groth"), netherGroth);
-        Registry.register(Registries.ITEM, Id.of("nether_groth"), new BlockItem(netherGroth, new Item.Settings()));
-        // Grothed Netherrack
-        Registry.register(Registries.BLOCK, Id.of("grothed_netherrack"), grothedNetherrackBlock);
-        // Aqueduct
-        Registry.register(Registries.BLOCK, Id.of("aqueduct"), aqueductBlock);
-        Registry.register(Registries.ITEM, Id.of("aqueduct"), new BlockItem(aqueductBlock, new Item.Settings()));
-        // Screw pump
-        Registry.register(Registries.BLOCK, Id.of("screw_pump"), screwPumpBlock);
-        Registry.register(Registries.ITEM, Id.of("screw_pump"), new BlockItem(screwPumpBlock, new Item.Settings()));
+        DyeUtils.WOOL_COLORS.forEach((dyeColor, woolBlock) ->
+                woolSlabBlocks.put(dyeColor, RegistrationUtils.registerBlockAndItem(
+                        dyeColor.name() + "_wool_slab",
+                        SlabBlock::new,
+                        AbstractBlock.Settings.copy(woolBlock)
+                ))
+        );
+    }
 
+    @Override
+    public void onInitialize() {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(content -> {
             content.addAfter(Items.NETHER_WART, BwtBlocks.netherGroth);
             content.addAfter(Items.CHERRY_LOG, BwtBlocks.bloodWoodBlocks.logBlock);
@@ -638,5 +706,29 @@ public class BwtBlocks implements ModInitializer {
         FlattenableBlockRegistry.register(BwtBlocks.dirtSlabBlock, BwtBlocks.dirtPathSlabBlock.getDefaultState());
         FlattenableBlockRegistry.register(BwtBlocks.myceliumSlabBlock, BwtBlocks.dirtPathSlabBlock.getDefaultState());
         FlattenableBlockRegistry.register(BwtBlocks.podzolSlabBlock, BwtBlocks.dirtPathSlabBlock.getDefaultState());
+    }
+
+
+
+    private static UnfiredDecoratedPotBlockWithSherds registerUnfiredDecoratedPotBlockWithSherds() {
+        String id = "unfired_decorated_pot_with_sherds";
+        UnfiredDecoratedPotBlockWithSherds block = RegistrationUtils.registerBlock(
+                id,
+                UnfiredDecoratedPotBlockWithSherds::new,
+                AbstractBlock.Settings.copy(Blocks.CLAY)
+                        .nonOpaque()
+                        .solidBlock(Blocks::never)
+        );
+        RegistryKey<Item> itemKey = RegistrationUtils.keyOfItem(id);
+
+        BlockItem blockItem = new BlockItem(
+                unfiredDecoratedPotBlockWithSherds,
+                new Item.Settings()
+                        .component(DataComponentTypes.POT_DECORATIONS, Sherds.DEFAULT)
+                        .registryKey(itemKey)
+                        .useBlockPrefixedTranslationKey()
+        );
+        Registry.register(Registries.ITEM, itemKey, blockItem);
+        return block;
     }
 }

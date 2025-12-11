@@ -162,7 +162,7 @@ public class MechHopperBlockEntity extends BlockEntity implements NamedScreenHan
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, MechHopperBlockEntity blockEntity) {
-        if (world.isClient || !state.isOf(BwtBlocks.hopperBlock)) {
+        if (world.isClient() || !state.isOf(BwtBlocks.hopperBlock)) {
             return;
         }
 

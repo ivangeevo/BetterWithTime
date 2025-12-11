@@ -157,8 +157,8 @@ public class MechHopperBlock extends BlockWithEntity implements MechPowerBlockBa
     }
 
     @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        if (world.isClient) {
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @org.jspecify.annotations.Nullable WireOrientation wireOrientation, boolean notify) {
+        if (world.isClient()) {
             return;
         }
         schedulePowerUpdate(state, world, pos);
@@ -184,7 +184,7 @@ public class MechHopperBlock extends BlockWithEntity implements MechPowerBlockBa
 
     @Override
     public void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity) {
-        if (world.isClient) {
+        if (world.isClient()) {
             return;
         }
         BlockEntity blockEntity = world.getBlockEntity(pos);
@@ -195,7 +195,7 @@ public class MechHopperBlock extends BlockWithEntity implements MechPowerBlockBa
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (world.isClient) return ActionResult.SUCCESS;
+        if (world.isClient()) return ActionResult.SUCCESS;
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof MechHopperBlockEntity hopperBlockEntity) {
             player.openHandledScreen(hopperBlockEntity);
@@ -210,7 +210,7 @@ public class MechHopperBlock extends BlockWithEntity implements MechPowerBlockBa
 
     @Nullable
     protected static <A extends BlockEntity> BlockEntityTicker<A> validateTicker(World world, BlockEntityType<A> givenType) {
-        return world.isClient ? null : BlockWithEntity.validateTicker(givenType, BwtBlockEntities.mechHopperBlockEntity, MechHopperBlockEntity::tick);
+        return world.isClient() ? null : BlockWithEntity.validateTicker(givenType, BwtBlockEntities.mechHopperBlockEntity, MechHopperBlockEntity::tick);
     }
 
     @Nullable

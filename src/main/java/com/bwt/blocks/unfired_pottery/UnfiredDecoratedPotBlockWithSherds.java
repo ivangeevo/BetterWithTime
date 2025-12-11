@@ -111,7 +111,7 @@ public class UnfiredDecoratedPotBlockWithSherds extends UnfiredPotteryBlock impl
     public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof UnfiredDecoratedPotBlockEntity unfiredDecoratedPotBlockEntity) {
-            if (!world.isClient && player.isCreative() && unfiredDecoratedPotBlockEntity.hasSherds()) {
+            if (!world.isClient() && player.isCreative() && unfiredDecoratedPotBlockEntity.hasSherds()) {
                 ItemStack itemStack = new ItemStack(this);
                 itemStack.applyComponentsFrom(unfiredDecoratedPotBlockEntity.createComponentMap());
                 ItemEntity itemEntity = new ItemEntity(world, (double)pos.getX() + 0.5, (double)pos.getY() + 0.5, (double)pos.getZ() + 0.5, itemStack);
@@ -165,10 +165,10 @@ public class UnfiredDecoratedPotBlockWithSherds extends UnfiredPotteryBlock impl
         if (!(blockEntity instanceof UnfiredDecoratedPotBlockEntity unfiredDecoratedPotBlockEntity)) {
             return super.onUseWithItem(stack, state, world, pos, player, hand, hit);
         }
-        if (!world.isClient && unfiredDecoratedPotBlockEntity.tryAddSherd(side, stack.getItem())) {
+        if (!world.isClient() && unfiredDecoratedPotBlockEntity.tryAddSherd(side, stack.getItem())) {
             stack.decrementUnlessCreative(1, player);
         }
-        return ItemActionResult.success(world.isClient);
+        return ItemActionResult.success(world.isClient());
     }
 
     @Override
@@ -189,7 +189,7 @@ public class UnfiredDecoratedPotBlockWithSherds extends UnfiredPotteryBlock impl
         if (!unfiredDecoratedPotBlockEntity.hasSherds()) {
             world.setBlockState(pos, BwtBlocks.unfiredDecoratedPotBlock.getDefaultState(), Block.NOTIFY_LISTENERS, 0);
         }
-        return ActionResult.success(world.isClient);
+        return ActionResult.success(world.isClient());
     }
 
     @Override

@@ -113,8 +113,8 @@ public abstract class AbstractCookingPotBlock extends BlockWithEntity implements
     }
 
     @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        if (world.isClient) {
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @org.jspecify.annotations.Nullable WireOrientation wireOrientation, boolean notify) {
+        if (world.isClient()) {
             return;
         }
         schedulePowerUpdate(state, world, pos);
@@ -135,12 +135,12 @@ public abstract class AbstractCookingPotBlock extends BlockWithEntity implements
 
     @Nullable
     protected static <A extends BlockEntity, E extends AbstractCookingPotBlockEntity> BlockEntityTicker<A> validateTicker(World world, BlockEntityType<A> givenType, BlockEntityType<E> expectedType) {
-        return world.isClient ? null : BlockWithEntity.validateTicker(givenType, expectedType, E::tick);
+        return world.isClient() ? null : BlockWithEntity.validateTicker(givenType, expectedType, E::tick);
     }
 
     @Override
     public void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity) {
-        if (world.isClient) {
+        if (world.isClient()) {
             return;
         }
         if (state.get(TIP_DIRECTION) != Direction.UP) {

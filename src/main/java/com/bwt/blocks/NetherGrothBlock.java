@@ -200,7 +200,7 @@ public class NetherGrothBlock extends Block {
 
     @Override
     public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
-        if (world.isClient) {
+        if (world.isClient()) {
             return;
         }
 

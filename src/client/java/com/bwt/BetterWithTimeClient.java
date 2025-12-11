@@ -13,8 +13,8 @@ import com.bwt.utils.Id;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
@@ -22,11 +22,14 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
+import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
 import net.minecraft.client.render.entity.PaintingEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.client.render.item.model.special.SpecialModelTypes;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
@@ -63,13 +66,15 @@ public class BetterWithTimeClient implements ClientModInitializer {
 		EntityModelLayerRegistry.registerModelLayer(MECH_HOPPER_FILL_LAYER, MechHopperFillModel::getTexturedModelData);
 		EntityModelLayerRegistry.registerModelLayer(CAULDRON_FILL_LAYER, CookingPotFillModel::getTexturedModelData);
 		EntityModelLayerRegistry.registerModelLayer(CRUCIBLE_FILL_LAYER, CookingPotFillModel::getTexturedModelData);
+        SpecialModelTypes.ID_MAPPER.put();
+        Builtin
         BuiltinItemRendererRegistry.INSTANCE.register(
                 BwtBlocks.unfiredDecoratedPotBlockWithSherds.asItem(),
                 (stack, mode, matrices, vertexConsumers, light, overlay) -> {
                     renderUnfiredDecoratedPot.readFrom(stack);
-                    MinecraftClient.getInstance().getBlockEntityRenderDispatcher().renderEntity(renderUnfiredDecoratedPot, matrices, vertexConsumers, light, overlay);
+                    MinecraftClient.getInstance().getBlockEntityRenderDispatcher().render(renderUnfiredDecoratedPot, matrices, vertexConsumers, light, overlay);
                 });
-		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(),
+		BlockRenderLayerMap.putBlocks(BlockRenderLayer.CUTOUT,
 				BwtBlocks.lightBlockBlock,
 				BwtBlocks.lensBeamGlassBlock,
 				BwtBlocks.hempCropBlock,
@@ -84,9 +89,9 @@ public class BetterWithTimeClient implements ClientModInitializer {
 				BwtBlocks.bloodWoodBlocks.saplingBlock,
 				BwtBlocks.bloodWoodBlocks.pottedSaplingBlock,
 				BwtBlocks.bloodWoodBlocks.doorBlock,
-				BwtBlocks.bloodWoodBlocks.trapdoorBlock
-		);
-		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutoutMipped(),
+				BwtBlocks.bloodWoodBlocks.trapdoorBlock,
+
+
 				BwtBlocks.bloodWoodBlocks.leavesBlock,
 				BwtBlocks.grassSlabBlock
 		);
@@ -108,7 +113,6 @@ public class BetterWithTimeClient implements ClientModInitializer {
 			}
 			return biomeEntry.value().getGrassColorAt(pos.getX(), pos.getZ());
 		}, BwtBlocks.grassPlanterBlock);
-		ColorProviderRegistry.ITEM.register((stack, tintIndex) -> GrassColors.getDefaultColor(), BwtBlocks.grassPlanterBlock);
 
 		ColorProviderRegistry.BLOCK.register((state, view, pos, tintIndex) -> {
 			if (view == null || pos == null) {
@@ -120,7 +124,6 @@ public class BetterWithTimeClient implements ClientModInitializer {
 			}
 			return biomeEntry.value().getGrassColorAt(pos.getX(), pos.getZ());
 		}, BwtBlocks.grassSlabBlock);
-		ColorProviderRegistry.ITEM.register((stack, tintIndex) -> GrassColors.getDefaultColor(), BwtBlocks.grassSlabBlock);
 
 		ModelPredicateProviderRegistry.register(BwtItems.compositeBowItem, Id.mc("pull"), (itemStack, clientWorld, livingEntity, seed) -> {
 			if (livingEntity == null) {

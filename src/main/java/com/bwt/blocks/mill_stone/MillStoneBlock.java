@@ -87,7 +87,7 @@ public class MillStoneBlock extends BlockWithEntity implements MechPowerBlockBas
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (world.isClient) return ActionResult.SUCCESS;
+        if (world.isClient()) return ActionResult.SUCCESS;
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof MillStoneBlockEntity millStoneBlockEntity) {
             player.openHandledScreen(millStoneBlockEntity);
@@ -97,7 +97,7 @@ public class MillStoneBlock extends BlockWithEntity implements MechPowerBlockBas
 
     @Nullable
     protected static <A extends BlockEntity> BlockEntityTicker<A> validateTicker(World world, BlockEntityType<A> givenType) {
-        return world.isClient ? null : BlockWithEntity.validateTicker(givenType, BwtBlockEntities.millStoneBlockEntity, MillStoneBlockEntity::tick);
+        return world.isClient() ? null : BlockWithEntity.validateTicker(givenType, BwtBlockEntities.millStoneBlockEntity, MillStoneBlockEntity::tick);
     }
 
     @Nullable
@@ -123,8 +123,8 @@ public class MillStoneBlock extends BlockWithEntity implements MechPowerBlockBas
     }
 
     @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        if (world.isClient) {
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @org.jspecify.annotations.Nullable WireOrientation wireOrientation, boolean notify) {
+        if (world.isClient()) {
             return;
         }
         schedulePowerUpdate(state, world, pos);
