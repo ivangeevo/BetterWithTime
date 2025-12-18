@@ -4,7 +4,6 @@ import com.bwt.blocks.BwtBlocks;
 import com.bwt.items.BwtItems;
 import com.bwt.tags.BwtBlockTags;
 import com.bwt.tags.BwtItemTags;
-import com.bwt.tags.CompatibilityTags;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
@@ -18,19 +17,15 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagBuilder;
 import net.minecraft.registry.tag.TagKey;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 public class ItemTagGenerator extends FabricTagProvider.ItemTagProvider {
-    @Nullable
-    private final Function<TagKey<Block>, TagBuilder> blockTagBuilderProvider;
+    private final BlockTagGenerator blockTagGenerator;
 
     public ItemTagGenerator(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> completableFuture, BlockTagGenerator blockTagGenerator) {
         super(output, completableFuture, blockTagGenerator);
-        this.blockTagBuilderProvider = blockTagGenerator == null ? null : blockTagGenerator::getTagBuilder;
+        this.blockTagGenerator = blockTagGenerator;
     }
 
     @Override
@@ -99,7 +94,7 @@ public class ItemTagGenerator extends FabricTagProvider.ItemTagProvider {
     }
 
     public void copyIgnoreMissing(TagKey<Block> blockTag, TagKey<Item> itemTag) {
-        TagBuilder blockTagBuilder = Objects.requireNonNull(this.blockTagBuilderProvider, "Pass Block tag provider via constructor to use copy").apply(blockTag);
+        TagBuilder blockTagBuilder = blockTagGenerator.getTagBuilder(blockTag);
         TagBuilder itemTagBuilder = this.getTagBuilder(itemTag);
         blockTagBuilder.build().stream()
                 .filter(entry -> entry.canAdd(Registries.ITEM::containsId, tagId -> getTagBuilder(TagKey.of(RegistryKeys.ITEM, tagId)) != null))
@@ -156,8 +151,26 @@ public class ItemTagGenerator extends FabricTagProvider.ItemTagProvider {
 
         valueLookupBuilder(BwtItemTags.PASSES_SLATS_FILTER)
                 .addTag(BwtItemTags.PASSES_WICKER_FILTER)
-                .forceAddTag(ItemTags.TRIM_TEMPLATES)
                 .add(
+                        Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE,
+                        Items.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.WILD_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.WARD_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.EYE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.VEX_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.TIDE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.HOST_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.FLOW_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE,
                         // Arcane scrolls
                         BwtItems.fabricItem,
                         Items.GRAVEL,
@@ -302,8 +315,26 @@ public class ItemTagGenerator extends FabricTagProvider.ItemTagProvider {
                 .forceAddTag(ItemTags.SAPLINGS)
                 .forceAddTag(ItemTags.SIGNS)
                 .forceAddTag(ItemTags.DECORATED_POT_SHERDS)
-                .forceAddTag(ItemTags.TRIM_TEMPLATES)
                 .add(
+                        Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE,
+                        Items.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.WILD_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.WARD_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.EYE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.VEX_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.TIDE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.HOST_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.FLOW_ARMOR_TRIM_SMITHING_TEMPLATE,
+                        Items.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE,
                         BwtItems.armorPlateItem,
                         Items.ARROW,
                         BwtItems.broadheadArrowItem,

@@ -14,12 +14,16 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 import net.minecraft.util.Pair;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -45,7 +49,7 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
     public HorizontalMechPowerSourceEntity(EntityType<? extends HorizontalMechPowerSourceEntity> type, World world, Vec3d pos, Direction facing) {
         this(type, world);
         setPosition(pos);
-        setYaw(facing.asRotation());
+        setYaw(facing.getPositiveHorizontalDegrees());
     }
 
     public interface Factory {
@@ -128,7 +132,7 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
     }
 
     @Override
-    public boolean isCollidable() {
+    public boolean isCollidable(@Nullable Entity entity) {
         return true;
     }
 
@@ -148,14 +152,14 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
         }
 
         if (placementBlockedByBlock()) {
-            if(player != null) {
-                player.sendMessage(blockBlockedErrorMessage);
+            if (player != null) {
+                player.sendMessage(blockBlockedErrorMessage, false);
             }
             return false;
         }
         if (placementBlockedByEntity()) {
-            if(player != null) {
-                player.sendMessage(entityBlockedErrorMessage);
+            if (player != null) {
+                player.sendMessage(entityBlockedErrorMessage, false);
             }
             return false;
         }
@@ -165,7 +169,7 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
         }
 
         setRotationSpeed(computeRotation());
-        World world = getWorld();
+        World world = getEntityWorld();
         world.spawnEntity(this);
         return true;
     }
@@ -180,12 +184,14 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
 
     @Override
     protected void onBlockCollision(BlockState state) {
-        destroyWithDrop();
+        if (getEntityWorld() instanceof ServerWorld serverWorld) {
+            destroyWithDrop(serverWorld);
+        }
     }
 
     public boolean placementBlockedByEntity() {
         ArrayList<Entity> anyEntities = new ArrayList<>();
-        getWorld().collectEntitiesByType(
+        getEntityWorld().collectEntitiesByType(
                 TypeFilter.instanceOf(Entity.class),
                 getBoundingBox(),
                 entity -> entity != this && EntityPredicates.EXCEPT_SPECTATOR.test(entity) && !(entity instanceof ItemEntity),
@@ -194,7 +200,7 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
     }
 
     public boolean placementHasBadAxleState() {
-        World world = getWorld();
+        World world = getEntityWorld();
 
         BlockState axleBlock = world.getBlockState(getBlockPos());
 
@@ -206,8 +212,8 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
         float yaw = getYaw();
 
         // Misaligned
-        return Direction.from(axleAxis, Direction.AxisDirection.NEGATIVE).asRotation() != yaw
-                && Direction.from(axleAxis, Direction.AxisDirection.POSITIVE).asRotation() != yaw;
+        return Direction.from(axleAxis, Direction.AxisDirection.NEGATIVE).getPositiveHorizontalDegrees() != yaw
+                && Direction.from(axleAxis, Direction.AxisDirection.POSITIVE).getPositiveHorizontalDegrees() != yaw;
     }
 
     @Override
@@ -224,17 +230,17 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
             this.setDamageWobbleStrength(this.getDamageWobbleStrength() - 1.0f);
         }
 
-        if (getWorld().isClient) {
-            updateRotation();
-        }
-        else {
+        if (getEntityWorld() instanceof ServerWorld serverWorld) {
             ticksBeforeNextFullUpdate--;
             if (ticksBeforeNextFullUpdate <= 0) {
                 ticksBeforeNextFullUpdate = 20;
-                fullUpdate();
+                fullUpdate(serverWorld);
             }
         }
-        getWorld()
+        else {
+            updateRotation();
+        }
+        getEntityWorld()
                 .getOtherEntities(this, this.getBoundingBox().expand(0.01f, 0.01f, 0.01f), EntityPredicates.canBePushedBy(this))
                 .forEach(this::pushAwayFrom);
     }
@@ -273,9 +279,9 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
         setRotation(rotation + this.getDataTracker().get(rotationSpeed));
     }
 
-    protected void fullUpdate() {
+    protected void fullUpdate(ServerWorld serverWorld) {
         if (placementBlockedByBlock() || placementHasBadAxleState()) {
-            destroyWithDrop();
+            destroyWithDrop(serverWorld);
             return;
         }
 
@@ -285,11 +291,11 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
     }
 
     @Override
-    public boolean damage(DamageSource source, float amount) {
-        if (this.getWorld().isClient || this.isRemoved()) {
+    public boolean damage(ServerWorld world, DamageSource source, float amount) {
+        if (this.isRemoved()) {
             return true;
         }
-        if (this.isInvulnerableTo(source)) {
+        if (this.isAlwaysInvulnerableTo(source)) {
             return false;
         }
         this.setDamageWobbleSide(-this.getDamageWobbleSide());
@@ -303,15 +309,15 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
             return true;
         }
         if (this.getDamageWobbleStrength() > 40.0f) {
-            destroyWithDrop();
+            destroyWithDrop(world);
         }
         return true;
     }
 
-    public void destroyWithDrop() {
+    public void destroyWithDrop(ServerWorld serverWorld) {
         if (isRemoved()) return;
-        dropStack(getPickBlockStack(), 0.5f);
-        kill();
+        dropStack(serverWorld, getPickBlockStack(), 0.5f);
+        kill(serverWorld);
     }
 
     @Override
@@ -321,7 +327,7 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
     }
 
     protected void setHostAxlePower(boolean powered) {
-        World world = getWorld();
+        World world = getEntityWorld();
         BlockPos pos = getBlockPos();
         BlockState hostBlockState = world.getBlockState(pos);
         if (!powered && hostBlockState.isOf(BwtBlocks.axlePowerSourceBlock)) {
@@ -336,12 +342,12 @@ public abstract class HorizontalMechPowerSourceEntity extends RectangularEntity 
     }
 
     @Override
-    protected void writeCustomDataToNbt(NbtCompound nbt) {
-        nbt.putFloat("rotationSpeed", dataTracker.get(rotationSpeed));
+    protected void writeCustomData(WriteView view) {
+        view.putFloat("rotationSpeed", dataTracker.get(rotationSpeed));
     }
 
     @Override
-    protected void readCustomDataFromNbt(NbtCompound nbt) {
-        this.dataTracker.set(rotationSpeed, nbt.getFloat("rotationSpeed"));
+    protected void readCustomData(ReadView view) {
+        this.dataTracker.set(rotationSpeed, view.getFloat("rotationSpeed", getRotationSpeed()));
     }
 }

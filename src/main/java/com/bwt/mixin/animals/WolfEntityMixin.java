@@ -86,7 +86,7 @@ public abstract class WolfEntityMixin extends TameableEntity implements MobEntit
     public void interactMob(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         ItemStack itemStack = player.getStackInHand(hand);
         if (!this.isBaby() && this.isTamed() && this.isBreedingItem(itemStack) && !bwt$isFed()) {
-            if (this.getWorld().isClient()) {
+            if (this.getEntityWorld().isClient()) {
                 cir.setReturnValue(ActionResult.CONSUME);
                 return;
             }
@@ -94,7 +94,7 @@ public abstract class WolfEntityMixin extends TameableEntity implements MobEntit
                 itemStack.decrement(1);
             }
             this.bwt$feed(itemStack);
-            cir.setReturnValue(ActionResult.success(this.getWorld().isClient()));
+            cir.setReturnValue(ActionResult.success(this.getEntityWorld().isClient()));
         }
     }
 
@@ -111,7 +111,7 @@ public abstract class WolfEntityMixin extends TameableEntity implements MobEntit
 
     @Inject(method = "tick", at = @At("TAIL"))
     public void tick(CallbackInfo ci) {
-        World world = getWorld();
+        World world = getEntityWorld();
         Random random = world.getRandom();
         if (world.isClient()) {
             return;
@@ -134,7 +134,7 @@ public abstract class WolfEntityMixin extends TameableEntity implements MobEntit
 
     @Unique
     public boolean attemptProduceDung() {
-        World world = getWorld();
+        World world = getEntityWorld();
         Random random = getRandom();
         
         double dungVectorX = Math.sin(Math.toRadians(getHeadYaw()));
@@ -194,7 +194,7 @@ public abstract class WolfEntityMixin extends TameableEntity implements MobEntit
 
     @Unique
     protected boolean bwt$isBlockOpenToDung(int x, int y, int z) {
-        World world = getWorld();
+        World world = getEntityWorld();
         BlockPos blockPos = new BlockPos(x, y, z);
         BlockState blockState = world.getBlockState(blockPos);
         FluidState fluidState = world.getFluidState(blockPos);
@@ -231,6 +231,6 @@ public abstract class WolfEntityMixin extends TameableEntity implements MobEntit
 
     @Unique
     public boolean bwt$isInTheDark() {
-        return getWorld().getLightLevel(getBlockPos()) < 5;
+        return getEntityWorld().getLightLevel(getBlockPos()) < 5;
     }
 }

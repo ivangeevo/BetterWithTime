@@ -22,13 +22,13 @@ public class MovingPlatformComponentEntity extends RectangularEntity {
     public final EntityRectDimensions stateDimensions;
 
     public MovingPlatformComponentEntity(MovingRopeEntity owner, Vec3i offset, BlockState cachedState, BlockEntity blockEntity) {
-        super(owner.getType(), owner.getWorld());
+        super(owner.getType(), owner.getEntityWorld());
         this.owner = owner;
         this.offset = offset;
         this.cachedState = cachedState;
         this.blockEntity = blockEntity;
         setPosition(owner.getPos().add(Vec3d.of(offset)));
-        VoxelShape shape = cachedState.getCollisionShape(owner.getWorld(), owner.getBlockPos().add(offset));
+        VoxelShape shape = cachedState.getCollisionShape(owner.getEntityWorld(), owner.getBlockPos().add(offset));
         Box outlineShape = shape.getBoundingBox();
         this.stateDimensions = EntityRectDimensions.fixed((float) (outlineShape.maxX - outlineShape.minX), (float) (outlineShape.maxY - outlineShape.minY), (float) (outlineShape.maxZ - outlineShape.minZ));
         this.calculateDimensions();

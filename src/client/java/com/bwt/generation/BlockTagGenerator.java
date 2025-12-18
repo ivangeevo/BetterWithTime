@@ -25,6 +25,10 @@ public class BlockTagGenerator extends FabricTagProvider.BlockTagProvider {
         super(output, completableFuture);
     }
 
+    public TagBuilder getTagBuilder(TagKey<Block> tag) {
+        return super.getTagBuilder(tag);
+    }
+
     @Override
     protected void configure(RegistryWrapper.@NotNull WrapperLookup arg) {
         valueLookupBuilder(BlockTags.AIR).add(

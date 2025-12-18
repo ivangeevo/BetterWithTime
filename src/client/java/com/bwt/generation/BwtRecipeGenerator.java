@@ -3,12 +3,14 @@ package com.bwt.generation;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.data.DataWriter;
-import net.minecraft.data.server.recipe.RecipeExporter;
+import net.minecraft.data.recipe.RecipeExporter;
+import net.minecraft.data.recipe.RecipeGenerator;
 import net.minecraft.registry.RegistryWrapper;
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.CompletableFuture;
 
-public class RecipeGenerator extends FabricRecipeProvider {
+public class BwtRecipeGenerator extends FabricRecipeProvider {
     protected BlockDispenserClumpRecipeGenerator blockDispenserClumpRecipeGenerator;
     protected CauldronRecipeGenerator cauldronRecipeGenerator;
     protected CrucibleRecipeGenerator crucibleRecipeGenerator;
@@ -24,7 +26,7 @@ public class RecipeGenerator extends FabricRecipeProvider {
     protected SoulForgeRecipeGenerator soulForgeRecipeGenerator;
     protected EmiDefaultsGenerator emiDefaultsGenerator;
 
-    public RecipeGenerator(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+    public BwtRecipeGenerator(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
         super(output, registriesFuture);
         this.blockDispenserClumpRecipeGenerator = new BlockDispenserClumpRecipeGenerator(output, registriesFuture);
         this.cauldronRecipeGenerator = new CauldronRecipeGenerator(output, registriesFuture);
@@ -43,25 +45,32 @@ public class RecipeGenerator extends FabricRecipeProvider {
     }
 
     @Override
-    public void generate(RecipeExporter exporter) {}
+    protected @NonNull RecipeGenerator getRecipeGenerator(RegistryWrapper.@NonNull WrapperLookup registryLookup, @NonNull RecipeExporter exporter) {
+        return null;
+    }
 
     @Override
-    public CompletableFuture<?> run(DataWriter writer, RegistryWrapper.WrapperLookup wrapperLookup) {
+    public @NonNull CompletableFuture<?> run(@NonNull DataWriter writer) {
         return CompletableFuture.allOf(
-                disabledVanilaRecipeGenerator.run(writer, wrapperLookup),
-                blockDispenserClumpRecipeGenerator.run(writer, wrapperLookup),
-                cauldronRecipeGenerator.run(writer, wrapperLookup),
-                crucibleRecipeGenerator.run(writer, wrapperLookup),
-                craftingRecipeGenerator.run(writer, wrapperLookup),
-                vanillaRecipeGenerator.run(writer, wrapperLookup),
-                hopperRecipeGenerator.run(writer, wrapperLookup),
-                millStoneRecipeGenerator.run(writer, wrapperLookup),
-                mobSpawnerConversionRecipeGenerator.run(writer, wrapperLookup),
-                sawRecipeGenerator.run(writer, wrapperLookup),
-                turntableRecipeGenerator.run(writer, wrapperLookup),
-                kilnRecipeGenerator.run(writer, wrapperLookup),
-                soulForgeRecipeGenerator.run(writer, wrapperLookup),
+                disabledVanilaRecipeGenerator.run(writer),
+                blockDispenserClumpRecipeGenerator.run(writer),
+                cauldronRecipeGenerator.run(writer),
+                crucibleRecipeGenerator.run(writer),
+                craftingRecipeGenerator.run(writer),
+                vanillaRecipeGenerator.run(writer),
+                hopperRecipeGenerator.run(writer),
+                millStoneRecipeGenerator.run(writer),
+                mobSpawnerConversionRecipeGenerator.run(writer),
+                sawRecipeGenerator.run(writer),
+                turntableRecipeGenerator.run(writer),
+                kilnRecipeGenerator.run(writer),
+                soulForgeRecipeGenerator.run(writer),
                 emiDefaultsGenerator.run(writer)
         );
+    }
+
+    @Override
+    public String getName() {
+        return "";
     }
 }

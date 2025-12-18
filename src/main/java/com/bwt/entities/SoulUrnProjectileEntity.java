@@ -33,7 +33,7 @@ public class SoulUrnProjectileEntity extends ThrownItemEntity {
     public void handleStatus(byte status) {
         if (status == EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES) {
             for (int i = 0; i < 8; i++) {
-                this.getWorld()
+                this.getEntityWorld()
                         .addParticle(
                                 new ItemStackParticleEffect(ParticleTypes.ITEM, this.getStack()),
                                 this.getX(),
@@ -56,14 +56,14 @@ public class SoulUrnProjectileEntity extends ThrownItemEntity {
     @Override
     protected void onCollision(HitResult hitResult) {
         super.onCollision(hitResult);
-        if (this.getWorld().isClient) {
+        if (this.getEntityWorld().isClient()) {
             return;
         }
-        if (this.getWorld().getDifficulty().equals(Difficulty.PEACEFUL)) {
+        if (this.getEntityWorld().getDifficulty().equals(Difficulty.PEACEFUL)) {
             return;
         }
 
-        GhastEntity ghastEntity = EntityType.GHAST.create(this.getWorld());
+        GhastEntity ghastEntity = EntityType.GHAST.create(this.getEntityWorld());
         if (ghastEntity != null) {
             float yaw = (this.getYaw() + 180.0F) % 360F;
             ghastEntity.refreshPositionAndAngles(this.getX(), this.getY(), this.getZ(), yaw, 0.0F);
@@ -71,9 +71,9 @@ public class SoulUrnProjectileEntity extends ThrownItemEntity {
                 return;
             }
 
-            this.getWorld().spawnEntity(ghastEntity);
+            this.getEntityWorld().spawnEntity(ghastEntity);
         }
-        this.getWorld().sendEntityStatus(this, EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES);
+        this.getEntityWorld().sendEntityStatus(this, EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES);
         this.discard();
     }
 

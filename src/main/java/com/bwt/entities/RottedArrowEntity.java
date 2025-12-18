@@ -40,7 +40,7 @@ public class RottedArrowEntity extends PersistentProjectileEntity {
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
         super.onBlockHit(blockHitResult);
-        this.getWorld().sendEntityStatus(this, EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES);
+        this.getEntityWorld().sendEntityStatus(this, EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES);
         this.discard();
     }
 
@@ -49,8 +49,8 @@ public class RottedArrowEntity extends PersistentProjectileEntity {
         super.handleStatus(status);
         if (status == EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES) {
             for (int i = 0; i < 8; ++i) {
-                this.getWorld().playSound(this.getX(), this.getY(), this.getZ(), DEFAULT_STACK.getBreakSound(), this.getSoundCategory(), 0.13f, 0.8f + this.getWorld().random.nextFloat() * 0.4f, false);
-                this.getWorld().addParticle(
+                this.getEntityWorld().playSound(this.getX(), this.getY(), this.getZ(), DEFAULT_STACK.getBreakSound(), this.getSoundCategory(), 0.13f, 0.8f + this.getEntityWorld().random.nextFloat() * 0.4f, false);
+                this.getEntityWorld().addParticle(
                         new ItemStackParticleEffect(ParticleTypes.ITEM, DEFAULT_STACK),
                         this.getX(), this.getY(), this.getZ(),
                         ((double)this.random.nextFloat() - 0.5) * 0.08,

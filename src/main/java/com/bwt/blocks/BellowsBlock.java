@@ -17,7 +17,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
@@ -34,7 +33,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public class BellowsBlock extends Block implements MechPowerBlockBase {
-    public static DirectionProperty FACING = HorizontalFacingBlock.FACING;
+    public static EnumProperty<Direction>FACING = HorizontalFacingBlock.FACING;
     public static final float compressedHeight = 11;
     protected static final int tickRate = 37;
 

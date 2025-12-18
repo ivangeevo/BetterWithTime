@@ -22,13 +22,11 @@ public class BroadheadArrowEntity extends PersistentProjectileEntity {
 
     public BroadheadArrowEntity(World world, double x, double y, double z, ItemStack stack, @Nullable ItemStack weapon) {
         super(BwtEntities.broadheadArrowEntity, x, y, z, world, stack, weapon);
+        setDamage(4d);
     }
 
     public BroadheadArrowEntity(World world, LivingEntity owner, ItemStack stack, @Nullable ItemStack shotFrom) {
         super(BwtEntities.broadheadArrowEntity, owner, world, stack, shotFrom);
-    }
-
-    public void initFromStack(ItemStack stack) {
-        setDamage(super.getDamage() * 2);
+        setDamage(4d);
     }
 }

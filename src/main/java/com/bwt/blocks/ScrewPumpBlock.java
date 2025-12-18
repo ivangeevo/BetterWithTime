@@ -14,7 +14,6 @@ import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
@@ -27,7 +26,7 @@ import java.util.function.Predicate;
 
 public class ScrewPumpBlock extends Block implements MechPowerBlockBase {
     public static final MapCodec<ScrewPumpBlock> CODEC = createCodec(ScrewPumpBlock::new);
-    public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
+    public static final EnumProperty<Direction>FACING = HorizontalFacingBlock.FACING;
     public static final BooleanProperty JAMMED = BooleanProperty.of("jammed");
 
     protected static final int tickRate = 20;

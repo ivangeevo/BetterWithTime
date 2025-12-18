@@ -20,9 +20,12 @@ public class BloodWoodSaplingItemEntity extends ItemEntity {
             return;
         }
         BlockPos belowPos = supportingBlockPos.get();
-        if (getWorld().getBlockState(belowPos.up()).isIn(BlockTags.AIR) && getWorld().getBlockState(belowPos).isIn(BwtBlockTags.BLOOD_WOOD_PLANTABLE_ON)) {
-            this.discard();
-            getWorld().setBlockState(belowPos.up(), BwtBlocks.bloodWoodBlocks.saplingBlock.getDefaultState());
+        if (getEntityWorld().getBlockState(belowPos.up()).isIn(BlockTags.AIR) && getEntityWorld().getBlockState(belowPos).isIn(BwtBlockTags.BLOOD_WOOD_PLANTABLE_ON)) {
+            getStack().decrement(1);
+            if (getStack().isEmpty()) {
+                discard();
+            }
+            getEntityWorld().setBlockState(belowPos.up(), BwtBlocks.bloodWoodBlocks.saplingBlock.getDefaultState());
         }
     }
 }

@@ -12,6 +12,7 @@ import com.bwt.utils.BlockUtils;
 import net.minecraft.block.*;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCollisionHandler;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemPlacementContext;
@@ -32,6 +33,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.block.WireOrientation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -120,17 +122,17 @@ public class SawBlock extends SimpleFacingBlock implements MechPowerBlockBase {
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return COLLISION_SHAPES.get(state.get(FACING).getId());
+        return COLLISION_SHAPES.get(state.get(FACING).getIndex());
     }
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return OUTLINE_SHAPES.get(state.get(FACING).getId());
+        return OUTLINE_SHAPES.get(state.get(FACING).getIndex());
     }
 
     @Override
     protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @org.jspecify.annotations.Nullable WireOrientation wireOrientation, boolean notify) {
-        super.neighborUpdate(state, world, pos, sourceBlock, sourcePos, notify);
+        super.neighborUpdate(state, world, pos, sourceBlock, wireOrientation, notify);
         scheduleUpdateIfRequired(world, state, pos);
     }
 
@@ -159,20 +161,23 @@ public class SawBlock extends SimpleFacingBlock implements MechPowerBlockBase {
     }
 
     @Override
-    public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
-        super.onEntityCollision(state, world, pos, entity);
+    protected void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity, EntityCollisionHandler handler, boolean bl) {
+        super.onEntityCollision(state, world, pos, entity, handler, bl);
         if (!isMechPowered(state)) {
             return;
         }
         if (!(entity instanceof LivingEntity livingEntity)) {
             return;
         }
+        if (!(world instanceof ServerWorld serverWorld)) {
+            return;
+        }
         // construct bounding box from saw
-        if (BLADE_SHAPES.get(state.get(FACING).getId()).getBoundingBox().offset(pos)
-                .intersects(livingEntity.getBoundingBox(entity.getPose()).offset(livingEntity.getPos()))) {
+        if (BLADE_SHAPES.get(state.get(FACING).getIndex()).getBoundingBox().offset(pos)
+                .intersects(livingEntity.getBoundingBox(entity.getPose()).offset(livingEntity.getEntityPos()))) {
 
-            DamageSource damageSource = BwtDamageTypes.of(world, BwtDamageTypes.SAW_DAMAGE_TYPE);
-            livingEntity.damage(damageSource, 4.0f);
+            DamageSource damageSource = BwtDamageTypes.of(serverWorld, BwtDamageTypes.SAW_DAMAGE_TYPE);
+            livingEntity.damage(serverWorld, damageSource, 4.0f);
         }
     }
 
@@ -208,7 +213,7 @@ public class SawBlock extends SimpleFacingBlock implements MechPowerBlockBase {
     void emitSawParticles(World world, BlockState state, BlockPos pos) {
         // compute position of saw blade
         Direction facing = state.get(FACING);
-        VoxelShape bladeFace = BLADE_SHAPES.get(facing.getId()).asCuboid().offset(pos.getX(), pos.getY(), pos.getZ());
+        VoxelShape bladeFace = BLADE_SHAPES.get(facing.getIndex()).asCuboid().offset(pos.getX(), pos.getY(), pos.getZ());
         double bladeMaxX = bladeFace.getMax(Direction.Axis.X);
         double bladeMaxY = bladeFace.getMax(Direction.Axis.Y);
         double bladeMaxZ = bladeFace.getMax(Direction.Axis.Z);

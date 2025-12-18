@@ -52,7 +52,7 @@ public class WaterWheelEntity extends HorizontalMechPowerSourceEntity {
 
     @Override
     public Predicate<BlockPos> getBlockInterferencePredicate() {
-        return blockPos -> !getWorld().getBlockState(blockPos).isIn(BlockTags.AIR) && !getWorld().getFluidState(blockPos).isIn(FluidTags.WATER);
+        return blockPos -> !getEntityWorld().getBlockState(blockPos).isIn(BlockTags.AIR) && !getEntityWorld().getFluidState(blockPos).isIn(FluidTags.WATER);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class WaterWheelEntity extends HorizontalMechPowerSourceEntity {
     }
 
     protected float getCounterClockwiseRotationVelocity() {
-        World world = getWorld();
+        World world = getEntityWorld();
         Vec3i facingVector = getHorizontalFacing().getVector();
         float velocity = BlockPos.stream(getBoundingBox())
             .map(blockPos -> {

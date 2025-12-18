@@ -11,7 +11,6 @@ import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
@@ -31,7 +30,7 @@ import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
 public class HandCrankBlock extends Block {
-    public static DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+    public static EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
     public static IntProperty CLICK_TIMER = IntProperty.of("click_timer", 0, 7);
     private static final int tickRate = 3;
     private static final int delayBeforeReset = 15;

@@ -9,21 +9,21 @@ import com.bwt.blocks.unfired_pottery.UnfiredPotteryBlock;
 import com.bwt.items.BwtItems;
 import com.bwt.utils.DyeUtils;
 import com.bwt.utils.Id;
-import com.google.common.collect.ImmutableList;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
+import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.enums.BlockFace;
-import net.minecraft.data.client.*;
+import net.minecraft.client.data.*;
+import net.minecraft.client.render.model.json.MultipartModelCondition;
+import net.minecraft.client.render.model.json.WeightedVariant;
 import net.minecraft.item.Items;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
-import java.util.List;
 import java.util.Optional;
 
 public class ModelGenerator extends FabricModelProvider {
@@ -52,7 +52,7 @@ public class ModelGenerator extends FabricModelProvider {
         blockStateModelGenerator.registerItemModel(BwtBlocks.grateBlock);
         blockStateModelGenerator.registerItemModel(BwtBlocks.wickerPaneBlock);
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(
+                VariantsBlockModelDefinitionCreator.of(
                         BwtBlocks.cauldronBlock,
                         BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(BwtBlocks.cauldronBlock))
                 ).coordinate(BlockStateVariantMap.create(AbstractCookingPotBlock.TIP_DIRECTION)
@@ -64,19 +64,19 @@ public class ModelGenerator extends FabricModelProvider {
                 )
         );
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(
+                VariantsBlockModelDefinitionCreator.of(
                         BwtBlocks.crucibleBlock,
                         BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(BwtBlocks.crucibleBlock))
-                ).coordinate(BlockStateVariantMap.create(AbstractCookingPotBlock.TIP_DIRECTION)
-                        .register(Direction.UP, BlockStateVariant.create())
-                        .register(Direction.NORTH, BlockStateVariant.create().put(VariantSettings.X, VariantSettings.Rotation.R90))
-                        .register(Direction.SOUTH, BlockStateVariant.create().put(VariantSettings.X, VariantSettings.Rotation.R270))
-                        .register(Direction.WEST, BlockStateVariant.create().put(VariantSettings.X, VariantSettings.Rotation.R90).put(VariantSettings.Y, VariantSettings.Rotation.R270))
-                        .register(Direction.EAST, BlockStateVariant.create().put(VariantSettings.X, VariantSettings.Rotation.R270).put(VariantSettings.Y, VariantSettings.Rotation.R270))
+                ).coordinate(BlockStateVariantMap.operations(AbstractCookingPotBlock.TIP_DIRECTION)
+                        .register(Direction.UP, BlockStateModelGenerator.NO_OP)
+                        .register(Direction.NORTH, BlockStateModelGenerator.ROTATE_X_90)
+                        .register(Direction.SOUTH, BlockStateModelGenerator.ROTATE_X_270)
+                        .register(Direction.WEST, BlockStateModelGenerator.ROTATE_X_90.then(BlockStateModelGenerator.ROTATE_Y_270))
+                        .register(Direction.EAST, BlockStateModelGenerator.ROTATE_X_270.then(BlockStateModelGenerator.ROTATE_Y_270))
                 )
         );
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(
+                VariantsBlockModelDefinitionCreator.of(
                         BwtBlocks.pulleyBlock,
                         BlockStateVariant.create().put(
                                 VariantSettings.MODEL,
@@ -88,7 +88,7 @@ public class ModelGenerator extends FabricModelProvider {
                         )
                 )
         );
-        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockStateSupplier.create(BwtBlocks.turntableBlock)
+        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockModelDefinitionCreator.of(BwtBlocks.turntableBlock)
                 .coordinate(BlockStateVariantMap.create(TurntableBlock.TICK_SETTING)
                         .register(0, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockSubModelId(BwtBlocks.turntableBlock, "_0")))
                         .register(1, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockSubModelId(BwtBlocks.turntableBlock, "_1")))
@@ -97,7 +97,7 @@ public class ModelGenerator extends FabricModelProvider {
                 )
         );
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(
+                VariantsBlockModelDefinitionCreator.of(
                         BwtBlocks.platformBlock,
                         BlockStateVariant.create().put(
                                 VariantSettings.MODEL,
@@ -107,7 +107,7 @@ public class ModelGenerator extends FabricModelProvider {
         );
         Identifier bellowsId = ModelIds.getBlockModelId(BwtBlocks.bellowsBlock);
         Identifier bellowsCompressedId = bellowsId.withSuffixedPath("_compressed");
-        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockStateSupplier.create(BwtBlocks.bellowsBlock)
+        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockModelDefinitionCreator.of(BwtBlocks.bellowsBlock)
                 .coordinate(BlockStateVariantMap.create(BellowsBlock.MECH_POWERED)
                         .register(true, BlockStateVariant.create().put(VariantSettings.MODEL, bellowsCompressedId))
                         .register(false, BlockStateVariant.create().put(VariantSettings.MODEL, bellowsId))
@@ -123,14 +123,14 @@ public class ModelGenerator extends FabricModelProvider {
 
         blockStateModelGenerator.excludeFromSimpleItemModelGeneration(BwtBlocks.unfiredDecoratedPotBlockWithSherds);
         for (UnfiredPotteryBlock unfiredPotteryBlock : new UnfiredPotteryBlock[]{BwtBlocks.unfiredDecoratedPotBlock, BwtBlocks.unfiredDecoratedPotBlockWithSherds, BwtBlocks.unfiredCrucibleBlock, BwtBlocks.unfiredPlanterBlock, BwtBlocks.unfiredVaseBlock, BwtBlocks.unfiredUrnBlock, BwtBlocks.unfiredFlowerPotBlock}) {
-            blockStateModelGenerator.blockStateCollector.accept(VariantsBlockStateSupplier.create(unfiredPotteryBlock)
+            blockStateModelGenerator.blockStateCollector.accept(VariantsBlockModelDefinitionCreator.of(unfiredPotteryBlock)
                     .coordinate(BlockStateVariantMap.create(UnfiredPotteryBlock.COOKING)
                             .register(false, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(unfiredPotteryBlock)))
                             .register(true, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(unfiredPotteryBlock).withSuffixedPath("_cooking")))
                     )
             );
         }
-        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockStateSupplier.create(BwtBlocks.urnBlock)
+        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockModelDefinitionCreator.of(BwtBlocks.urnBlock)
                 .coordinate(BlockStateVariantMap.create(UrnBlock.CONNECTED_UP)
                         .register(false, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(BwtBlocks.urnBlock)))
                         .register(true, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(BwtBlocks.urnBlock).withSuffixedPath("_connected_up")))
@@ -145,7 +145,7 @@ public class ModelGenerator extends FabricModelProvider {
         Identifier buddyBlockPoweredModelId = TexturedModel.makeFactory(block -> new TextureMap().put(TextureKey.SIDE, TextureMap.getSubId(block, "_side_powered")).put(TextureKey.FRONT, TextureMap.getSubId(block, "_front_powered")).put(TextureKey.TOP, TextureMap.getSubId(block, "_side_powered")), Models.ORIENTABLE)
                 .upload(BwtBlocks.buddyBlock, "_powered", blockStateModelGenerator.modelCollector);
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(BwtBlocks.buddyBlock, BlockStateVariant.create().put(VariantSettings.MODEL, buddyBlockModelId))
+                VariantsBlockModelDefinitionCreator.of(BwtBlocks.buddyBlock, BlockStateVariant.create().put(VariantSettings.MODEL, buddyBlockModelId))
                         .coordinate(BlockStateModelGenerator.createBooleanModelMap(BuddyBlock.POWERED, buddyBlockPoweredModelId, buddyBlockModelId))
                         .coordinate(BlockStateModelGenerator.createNorthDefaultRotationStates())
         );
@@ -168,7 +168,7 @@ public class ModelGenerator extends FabricModelProvider {
         generateDebugLensBeam(blockStateModelGenerator);
         blockStateModelGenerator.blockStateCollector.accept(BlockStateModelGenerator.createSingletonBlockState(BwtBlocks.lensBeamGlassBlock, ModelIds.getBlockModelId(Blocks.GLASS)));
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(
+                VariantsBlockModelDefinitionCreator.of(
                         BwtBlocks.aqueductBlock,
                         BlockStateVariant.create().put(
                                 VariantSettings.MODEL,
@@ -223,7 +223,7 @@ public class ModelGenerator extends FabricModelProvider {
         itemModelGenerator.register(BwtItems.coalDustItem, Models.GENERATED);
         itemModelGenerator.register(BwtItems.concentratedHellfireItem, Models.GENERATED);
         itemModelGenerator.register(BwtItems.cementBucketItem, Models.GENERATED);
-        itemModelGenerator.register(BwtItems.cookedWolfChopItem, Items.COOKED_PORKCHOP, Models.GENERATED);
+        itemModelGenerator.registerWithTextureSource(BwtItems.cookedWolfChopItem, Items.COOKED_PORKCHOP, Models.GENERATED);
         itemModelGenerator.register(BwtItems.donutItem, Models.GENERATED);
         itemModelGenerator.register(BwtItems.dungItem, Models.GENERATED);
         itemModelGenerator.register(BwtItems.dynamiteItem, Models.GENERATED);
@@ -263,22 +263,22 @@ public class ModelGenerator extends FabricModelProvider {
         itemModelGenerator.register(BwtItems.tannedLeatherItem, Models.GENERATED);
         itemModelGenerator.register(BwtItems.waterWheelItem, Models.GENERATED);
         itemModelGenerator.register(BwtItems.windmillItem, Models.GENERATED);
-        itemModelGenerator.register(BwtItems.wolfChopItem, Items.PORKCHOP, Models.GENERATED);
+        itemModelGenerator.registerWithTextureSource(BwtItems.wolfChopItem, Items.PORKCHOP, Models.GENERATED);
         itemModelGenerator.register(BwtItems.woodBladeItem, Models.GENERATED);
     }
 
     private void generateBloodWoodBlocks(BlockStateModelGenerator blockStateModelGenerator) {
-        blockStateModelGenerator.registerLog(BwtBlocks.bloodWoodBlocks.logBlock).log(BwtBlocks.bloodWoodBlocks.logBlock).wood(BwtBlocks.bloodWoodBlocks.woodBlock);
-        blockStateModelGenerator.registerLog(BwtBlocks.bloodWoodBlocks.strippedLogBlock).log(BwtBlocks.bloodWoodBlocks.strippedLogBlock).wood(BwtBlocks.bloodWoodBlocks.strippedWoodBlock);
+        blockStateModelGenerator.createLogTexturePool(BwtBlocks.bloodWoodBlocks.logBlock).log(BwtBlocks.bloodWoodBlocks.logBlock).wood(BwtBlocks.bloodWoodBlocks.woodBlock);
+        blockStateModelGenerator.createLogTexturePool(BwtBlocks.bloodWoodBlocks.strippedLogBlock).log(BwtBlocks.bloodWoodBlocks.strippedLogBlock).wood(BwtBlocks.bloodWoodBlocks.strippedWoodBlock);
         blockStateModelGenerator.registerSingleton(BwtBlocks.bloodWoodBlocks.leavesBlock, TexturedModel.LEAVES);
-        blockStateModelGenerator.registerFlowerPotPlant(BwtBlocks.bloodWoodBlocks.saplingBlock, BwtBlocks.bloodWoodBlocks.pottedSaplingBlock, BlockStateModelGenerator.TintType.NOT_TINTED);
+        blockStateModelGenerator.registerFlowerPotPlant(BwtBlocks.bloodWoodBlocks.saplingBlock, BwtBlocks.bloodWoodBlocks.pottedSaplingBlock, BlockStateModelGenerator.CrossType.NOT_TINTED);
         blockStateModelGenerator.registerCubeAllModelTexturePool(BwtBlocks.bloodWoodBlocks.blockFamily.getBaseBlock()).family(BwtBlocks.bloodWoodBlocks.blockFamily);
     }
 
     private void generateCompanionBlocks(BlockStateModelGenerator blockStateModelGenerator) {
         Identifier companionCubeModelId = TexturedModel.ORIENTABLE.upload(BwtBlocks.companionCubeBlock, blockStateModelGenerator.modelCollector);
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(
+                VariantsBlockModelDefinitionCreator.of(
                         BwtBlocks.companionCubeBlock,
                         BlockStateVariant.create().put(
                                 VariantSettings.MODEL,
@@ -313,44 +313,45 @@ public class ModelGenerator extends FabricModelProvider {
         Model shortFireSideAltTemplate = new Model(Optional.of(Id.of("block/template_short_fire_side_alt")), Optional.empty(), TextureKey.FIRE);
         TextureMap short0 = new TextureMap().put(TextureKey.FIRE, TextureMap.getSubId(BwtBlocks.stokedFireBlock, "_short_0"));
         TextureMap short1 = new TextureMap().put(TextureKey.FIRE, TextureMap.getSubId(BwtBlocks.stokedFireBlock, "_short_1"));
-        List<Identifier> tallFloorIdentifiers = ImmutableList.of(
-                tallFireFloorTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_tall_floor0"), TextureMap.fire0(BwtBlocks.stokedFireBlock), blockStateModelGenerator.modelCollector),
-                tallFireFloorTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_tall_floor1"), TextureMap.fire1(BwtBlocks.stokedFireBlock), blockStateModelGenerator.modelCollector)
+        WeightedVariant tallFloorVariant = BlockStateModelGenerator.createWeightedVariant(
+                BlockStateModelGenerator.createModelVariant(tallFireFloorTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_tall_floor0"), TextureMap.fire0(BwtBlocks.stokedFireBlock), blockStateModelGenerator.modelCollector)),
+                BlockStateModelGenerator.createModelVariant(tallFireFloorTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_tall_floor1"), TextureMap.fire1(BwtBlocks.stokedFireBlock), blockStateModelGenerator.modelCollector))
         );
-        List<Identifier> shortFloorIdentifiers = ImmutableList.of(
-                tallFireFloorTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_short_floor0"), short0, blockStateModelGenerator.modelCollector),
-                tallFireFloorTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_short_floor1"), short1, blockStateModelGenerator.modelCollector)
+        WeightedVariant shortFloorVariant = BlockStateModelGenerator.createWeightedVariant(
+                BlockStateModelGenerator.createModelVariant(tallFireFloorTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_short_floor0"), short0, blockStateModelGenerator.modelCollector)),
+                BlockStateModelGenerator.createModelVariant(tallFireFloorTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_short_floor1"), short1, blockStateModelGenerator.modelCollector))
         );
-        List<Identifier> tallSideIdentifiers = ImmutableList.of(
-                tallFireSideTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_tall_side0"), TextureMap.fire0(BwtBlocks.stokedFireBlock), blockStateModelGenerator.modelCollector),
-                tallFireSideTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_tall_side1"), TextureMap.fire1(BwtBlocks.stokedFireBlock), blockStateModelGenerator.modelCollector),
-                tallFireSideAltTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_tall_side_alt0"), TextureMap.fire0(BwtBlocks.stokedFireBlock), blockStateModelGenerator.modelCollector),
-                tallFireSideAltTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_tall_side_alt1"), TextureMap.fire1(BwtBlocks.stokedFireBlock), blockStateModelGenerator.modelCollector)
+        WeightedVariant tallSideVariant = BlockStateModelGenerator.createWeightedVariant(
+                BlockStateModelGenerator.createModelVariant(tallFireSideTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_tall_side0"), TextureMap.fire0(BwtBlocks.stokedFireBlock), blockStateModelGenerator.modelCollector)),
+                BlockStateModelGenerator.createModelVariant(tallFireSideTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_tall_side1"), TextureMap.fire1(BwtBlocks.stokedFireBlock), blockStateModelGenerator.modelCollector)),
+                BlockStateModelGenerator.createModelVariant(tallFireSideAltTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_tall_side_alt0"), TextureMap.fire0(BwtBlocks.stokedFireBlock), blockStateModelGenerator.modelCollector)),
+                BlockStateModelGenerator.createModelVariant(tallFireSideAltTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_tall_side_alt1"), TextureMap.fire1(BwtBlocks.stokedFireBlock), blockStateModelGenerator.modelCollector))
         );
-        List<Identifier> shortSideIdentifiers = ImmutableList.of(
-                tallFireSideTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_short_side0"), short0, blockStateModelGenerator.modelCollector),
-                tallFireSideTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_short_side1"), short1, blockStateModelGenerator.modelCollector),
-                tallFireSideAltTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_short_side_alt0"), short0, blockStateModelGenerator.modelCollector),
-                tallFireSideAltTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_short_side_alt1"), short1, blockStateModelGenerator.modelCollector)
+        WeightedVariant shortSideVariant = BlockStateModelGenerator.createWeightedVariant(
+                BlockStateModelGenerator.createModelVariant(tallFireSideTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_short_side0"), short0, blockStateModelGenerator.modelCollector)),
+                BlockStateModelGenerator.createModelVariant(tallFireSideTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_short_side1"), short1, blockStateModelGenerator.modelCollector)),
+                BlockStateModelGenerator.createModelVariant(tallFireSideAltTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_short_side_alt0"), short0, blockStateModelGenerator.modelCollector)),
+                BlockStateModelGenerator.createModelVariant(tallFireSideAltTemplate.upload(ModelIds.getBlockSubModelId(BwtBlocks.stokedFireBlock, "_short_side_alt1"), short1, blockStateModelGenerator.modelCollector))
         );
-        When whenShort = When.create().set(StokedFireBlock.TWO_HIGH, false);
-        When whenTall = When.create().set(StokedFireBlock.TWO_HIGH, true);
-        blockStateModelGenerator.blockStateCollector.accept(MultipartBlockStateSupplier.create(BwtBlocks.stokedFireBlock)
-                .with(whenShort, BlockStateModelGenerator.buildBlockStateVariants(shortFloorIdentifiers, blockStateVariant -> blockStateVariant))
-                .with(whenTall, BlockStateModelGenerator.buildBlockStateVariants(tallFloorIdentifiers, blockStateVariant -> blockStateVariant))
-                .with(whenShort, BlockStateModelGenerator.buildBlockStateVariants(shortSideIdentifiers, blockStateVariant -> blockStateVariant))
-                .with(whenTall, BlockStateModelGenerator.buildBlockStateVariants(tallSideIdentifiers, blockStateVariant -> blockStateVariant))
-                .with(whenShort, BlockStateModelGenerator.buildBlockStateVariants(shortSideIdentifiers, blockStateVariant -> blockStateVariant.put(VariantSettings.Y, VariantSettings.Rotation.R90)))
-                .with(whenTall, BlockStateModelGenerator.buildBlockStateVariants(tallSideIdentifiers, blockStateVariant -> blockStateVariant.put(VariantSettings.Y, VariantSettings.Rotation.R90)))
-                .with(whenShort, BlockStateModelGenerator.buildBlockStateVariants(shortSideIdentifiers, blockStateVariant -> blockStateVariant.put(VariantSettings.Y, VariantSettings.Rotation.R180)))
-                .with(whenTall, BlockStateModelGenerator.buildBlockStateVariants(tallSideIdentifiers, blockStateVariant -> blockStateVariant.put(VariantSettings.Y, VariantSettings.Rotation.R180)))
-                .with(whenShort, BlockStateModelGenerator.buildBlockStateVariants(shortSideIdentifiers, blockStateVariant -> blockStateVariant.put(VariantSettings.Y, VariantSettings.Rotation.R270)))
-                .with(whenTall, BlockStateModelGenerator.buildBlockStateVariants(tallSideIdentifiers, blockStateVariant -> blockStateVariant.put(VariantSettings.Y, VariantSettings.Rotation.R270))));
+        MultipartModelCondition whenShort = BlockStateModelGenerator.createMultipartConditionBuilder().put(StokedFireBlock.TWO_HIGH, false).build();
+        MultipartModelCondition whenTall = BlockStateModelGenerator.createMultipartConditionBuilder().put(StokedFireBlock.TWO_HIGH, true).build();
+        blockStateModelGenerator.blockStateCollector.accept(MultipartBlockModelDefinitionCreator.create(BwtBlocks.stokedFireBlock)
+                .with(whenShort, shortFloorVariant)
+                .with(whenTall, tallFloorVariant)
+                .with(whenShort, shortSideVariant)
+                .with(whenTall, tallSideVariant)
+                .with(whenShort, shortSideVariant.apply(BlockStateModelGenerator.ROTATE_Y_90))
+                .with(whenTall, tallSideVariant.apply(BlockStateModelGenerator.ROTATE_Y_90))
+                .with(whenShort, shortSideVariant.apply(BlockStateModelGenerator.ROTATE_Y_180))
+                .with(whenTall, tallSideVariant.apply(BlockStateModelGenerator.ROTATE_Y_180))
+                .with(whenShort, shortSideVariant.apply(BlockStateModelGenerator.ROTATE_Y_270))
+                .with(whenTall, tallSideVariant.apply(BlockStateModelGenerator.ROTATE_Y_270))
+        );
     }
 
     private void generateMiningChargeBlock(BlockStateModelGenerator blockStateModelGenerator) {
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(BwtBlocks.miningChargeBlock, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(BwtBlocks.miningChargeBlock)))
+                VariantsBlockModelDefinitionCreator.of(BwtBlocks.miningChargeBlock, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(BwtBlocks.miningChargeBlock)))
                         .coordinate(BlockStateVariantMap
                                 .create(Properties.BLOCK_FACE, Properties.HORIZONTAL_FACING)
                                 .register(BlockFace.CEILING, Direction.NORTH, BlockStateVariant.create()
@@ -490,7 +491,7 @@ public class ModelGenerator extends FabricModelProvider {
         Model model = new Model(Optional.of(Id.of("block/siding")), Optional.empty(), TextureKey.BOTTOM, TextureKey.TOP, TextureKey.SIDE);
         model.upload(sidingBlock, texturedModel.getTextures(), blockStateModelGenerator.modelCollector);
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(
+                VariantsBlockModelDefinitionCreator.of(
                         sidingBlock,
                         BlockStateVariant.create().put(
                                 VariantSettings.MODEL,
@@ -507,7 +508,7 @@ public class ModelGenerator extends FabricModelProvider {
         Model verticalModel = new Model(Optional.of(Id.of("block/moulding_vertical")), Optional.of("_vertical"), TextureKey.BOTTOM, TextureKey.TOP, TextureKey.SIDE);
         Identifier horizontalId = horizontalModel.upload(mouldingBlock, texturedModel.getTextures(), blockStateModelGenerator.modelCollector);
         Identifier verticalId = verticalModel.upload(mouldingBlock, texturedModel.getTextures(), blockStateModelGenerator.modelCollector);
-        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockStateSupplier.create(mouldingBlock).coordinate(createMouldingOrientationMap(horizontalId, verticalId)));
+        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockModelDefinitionCreator.of(mouldingBlock).coordinate(createMouldingOrientationMap(horizontalId, verticalId)));
         blockStateModelGenerator.registerParentedItemModel(mouldingBlock, horizontalId);
     }
 
@@ -516,7 +517,7 @@ public class ModelGenerator extends FabricModelProvider {
         Model model = new Model(Optional.of(Id.of("block/corner")), Optional.empty(), TextureKey.BOTTOM, TextureKey.TOP, TextureKey.SIDE);
         model.upload(cornerBlock, texturedModel.getTextures(), blockStateModelGenerator.modelCollector);
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(
+                VariantsBlockModelDefinitionCreator.of(
                         cornerBlock,
                         BlockStateVariant.create().put(
                                 VariantSettings.MODEL,
@@ -531,7 +532,7 @@ public class ModelGenerator extends FabricModelProvider {
         TexturedModel texturedModel = TexturedModel.CUBE_ALL.get(columnBlock.fullBlock);
         Model model = new Model(Optional.of(Id.of("block/column")), Optional.empty(), TextureKey.BOTTOM, TextureKey.TOP, TextureKey.SIDE);
         model.upload(columnBlock, texturedModel.getTextures(), blockStateModelGenerator.modelCollector);
-        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockStateSupplier.create(columnBlock, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(columnBlock)).put(VariantSettings.UVLOCK, true)));
+        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockModelDefinitionCreator.of(columnBlock, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(columnBlock)).put(VariantSettings.UVLOCK, true)));
         blockStateModelGenerator.registerParentedItemModel(columnBlock, ModelIds.getBlockModelId(columnBlock));
     }
 
@@ -540,7 +541,7 @@ public class ModelGenerator extends FabricModelProvider {
         Model model = new Model(Optional.of(Id.of("block/pedestal")), Optional.empty(), TextureKey.BOTTOM, TextureKey.TOP, TextureKey.SIDE);
         model.upload(pedestalBlock, texturedModel.getTextures(), blockStateModelGenerator.modelCollector);
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(
+                VariantsBlockModelDefinitionCreator.of(
                         pedestalBlock,
                         BlockStateVariant.create().put(
                                 VariantSettings.MODEL,
@@ -561,7 +562,7 @@ public class ModelGenerator extends FabricModelProvider {
         Identifier tableModelId = tableModel.upload(ModelIds.getBlockModelId(tableBlock), texturedModel.getTextures(), blockStateModelGenerator.modelCollector);
         Identifier noSupportModelId = tableNoSupportModel.upload(ModelIds.getBlockSubModelId(tableBlock, "_no_support"), texturedModel.getTextures(), blockStateModelGenerator.modelCollector);
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(tableBlock)
+                VariantsBlockModelDefinitionCreator.of(tableBlock)
                         .coordinate(BlockStateVariantMap.create(TableBlock.SUPPORT)
                                 .register(true, BlockStateVariant.create().put(VariantSettings.MODEL, tableModelId))
                                 .register(false, BlockStateVariant.create().put(VariantSettings.MODEL, noSupportModelId))
@@ -581,7 +582,7 @@ public class ModelGenerator extends FabricModelProvider {
                 ModelIds.getBlockModelId(vaseBlock),
                 TextureMap.sideTopBottom(vaseBlock).put(TextureKey.PARTICLE, TextureMap.getSubId(vaseBlock, "_side")
         ), blockStateModelGenerator.modelCollector);
-        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockStateSupplier.create(vaseBlock, BlockStateVariant.create().put(VariantSettings.MODEL, modelId)));
+        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockModelDefinitionCreator.of(vaseBlock, BlockStateVariant.create().put(VariantSettings.MODEL, modelId)));
     }
 
     public void generateWoolSlab(BlockStateModelGenerator blockStateModelGenerator, DyeColor dyeColor, SlabBlock woolSlabBlock) {
@@ -657,7 +658,7 @@ public class ModelGenerator extends FabricModelProvider {
         Identifier snowyPodzolSlab = Id.of("block/snowy_podzol_slab");
 
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(BwtBlocks.dirtSlabBlock)
+                VariantsBlockModelDefinitionCreator.of(BwtBlocks.dirtSlabBlock)
                         .coordinate(
                                 BlockStateVariantMap.create(DirtSlabBlock.SNOWY)
                                         .register(true, BlockStateVariant.create().put(VariantSettings.MODEL, snowyDirtSlab))
@@ -668,7 +669,7 @@ public class ModelGenerator extends FabricModelProvider {
 
         //Grass Slab
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(BwtBlocks.grassSlabBlock)
+                VariantsBlockModelDefinitionCreator.of(BwtBlocks.grassSlabBlock)
                         .coordinate(
                                 BlockStateVariantMap.create(DirtSlabBlock.SNOWY)
                                         .register(true, BlockStateVariant.create().put(VariantSettings.MODEL, snowyGrassSlab))
@@ -677,7 +678,7 @@ public class ModelGenerator extends FabricModelProvider {
         );
         //Mycelium Slab
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(BwtBlocks.myceliumSlabBlock)
+                VariantsBlockModelDefinitionCreator.of(BwtBlocks.myceliumSlabBlock)
                         .coordinate(
                                 BlockStateVariantMap.create(DirtSlabBlock.SNOWY)
                                         .register(true, BlockStateVariant.create().put(VariantSettings.MODEL, snowyMyceliumSlab))
@@ -686,7 +687,7 @@ public class ModelGenerator extends FabricModelProvider {
         );
         //Podzol Slab
         blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockStateSupplier.create(BwtBlocks.podzolSlabBlock)
+                VariantsBlockModelDefinitionCreator.of(BwtBlocks.podzolSlabBlock)
                         .coordinate(
                                 BlockStateVariantMap.create(DirtSlabBlock.SNOWY)
                                         .register(true, BlockStateVariant.create().put(VariantSettings.MODEL, snowyPodzolSlab))
@@ -694,7 +695,7 @@ public class ModelGenerator extends FabricModelProvider {
                         )
         );
         //Dirt Path Slab
-        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockStateSupplier.create(BwtBlocks.dirtPathSlabBlock, BlockStateVariant.create().put(VariantSettings.MODEL, dirtPathSlab)));
+        blockStateModelGenerator.blockStateCollector.accept(VariantsBlockModelDefinitionCreator.of(BwtBlocks.dirtPathSlabBlock, BlockStateVariant.create().put(VariantSettings.MODEL, dirtPathSlab)));
     }
 
 }

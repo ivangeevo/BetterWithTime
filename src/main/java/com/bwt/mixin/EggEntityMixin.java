@@ -48,7 +48,7 @@ public abstract class EggEntityMixin extends ThrownItemEntity {
     @Inject(method = "onCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/EggEntity;discard()V"))
     public void bwt$spawnRawEgg(HitResult hitResult, CallbackInfo ci) {
         if (!this.chickenSpawned) {
-            getWorld().spawnEntity(new ItemEntity(getWorld(), getX(), getY(), getZ(), new ItemStack(BwtItems.rawEggItem)));
+            getEntityWorld().spawnEntity(new ItemEntity(getEntityWorld(), getX(), getY(), getZ(), new ItemStack(BwtItems.rawEggItem)));
         }
     }
 }

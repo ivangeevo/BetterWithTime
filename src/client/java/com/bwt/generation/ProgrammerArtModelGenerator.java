@@ -1,30 +1,12 @@
 package com.bwt.generation;
 
 import com.bwt.blocks.*;
-import com.bwt.blocks.abstract_cooking_pot.AbstractCookingPotBlock;
-import com.bwt.blocks.dirt_slab.DirtSlabBlock;
-import com.bwt.blocks.lens.LensBeamBlock;
-import com.bwt.blocks.turntable.TurntableBlock;
-import com.bwt.items.BwtItems;
-import com.bwt.utils.DyeUtils;
-import com.bwt.utils.Id;
-import com.google.common.collect.ImmutableList;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
-import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.BlockFace;
 import net.minecraft.block.enums.BlockHalf;
+import net.minecraft.client.data.BlockStateModelGenerator;
 import net.minecraft.data.client.*;
-import net.minecraft.item.Items;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-
-import java.util.List;
-import java.util.Optional;
 
 public class ProgrammerArtModelGenerator extends ModelGenerator {
     public ProgrammerArtModelGenerator(FabricDataOutput generator) {

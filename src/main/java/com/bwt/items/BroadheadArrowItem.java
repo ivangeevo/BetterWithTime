@@ -19,9 +19,7 @@ public class BroadheadArrowItem extends ArrowItem implements ProjectileItem {
     }
 
     public PersistentProjectileEntity createArrow(World world, ItemStack stack, LivingEntity shooter, @Nullable ItemStack shotFrom) {
-        BroadheadArrowEntity arrowEntity = new BroadheadArrowEntity(world, shooter, stack.copyWithCount(1), shotFrom);
-        arrowEntity.initFromStack(stack);
-        return arrowEntity;
+        return new BroadheadArrowEntity(world, shooter, stack.copyWithCount(1), shotFrom);
     }
 
     @Override

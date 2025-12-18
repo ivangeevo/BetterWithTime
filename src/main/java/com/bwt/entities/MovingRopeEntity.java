@@ -231,14 +231,14 @@ public class MovingRopeEntity extends RectangularEntity implements VoxelShapedEn
         for (NbtElement entry : blocks) {
             NbtCompound entryCompound = ((NbtCompound) entry);
             Vec3i pos = BlockPos.fromLong(entryCompound.getLong("pos"));
-            BlockState state = NbtHelper.toBlockState(this.getWorld().createCommandRegistryWrapper(RegistryKeys.BLOCK), entryCompound.getCompound("state"));
+            BlockState state = NbtHelper.toBlockState(this.getEntityWorld().createCommandRegistryWrapper(RegistryKeys.BLOCK), entryCompound.getCompound("state"));
             map.put(pos, state);
         }
         return map;
     }
 
     public boolean collidesWithStateAtPos(BlockPos pos, BlockState state) {
-        VoxelShape voxelShape2 = state.getCollisionShape(this.getWorld(), pos, ShapeContext.of(this)).offset(pos.getX(), pos.getY(), pos.getZ());
+        VoxelShape voxelShape2 = state.getCollisionShape(this.getEntityWorld(), pos, ShapeContext.of(this)).offset(pos.getX(), pos.getY(), pos.getZ());
         return VoxelShapes.matchesAnywhere(voxelShape2, VoxelShapes.cuboid(this.getBoundingBox()), BooleanBiFunction.AND);
     }
 
@@ -250,7 +250,7 @@ public class MovingRopeEntity extends RectangularEntity implements VoxelShapedEn
         }
         VoxelShape newShape = VoxelShapes.empty();
         for (Map.Entry<Vec3i, BlockState> entry : blocks.entrySet()) {
-            newShape = VoxelShapes.union(newShape, entry.getValue().getCollisionShape(getWorld(), getBlockPos().add(entry.getKey())).offset(entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ()));
+            newShape = VoxelShapes.union(newShape, entry.getValue().getCollisionShape(getEntityWorld(), getBlockPos().add(entry.getKey())).offset(entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ()));
         }
         setVoxelShape(newShape);
     }
@@ -296,7 +296,7 @@ public class MovingRopeEntity extends RectangularEntity implements VoxelShapedEn
     public HashMap<Entity, Box> getRiders() {
         HashMap<Entity, Box> entities = new HashMap<>();
         for (Box box : this.getVoxelShape().offset(getX() - 0.5, getY(), getZ() - 0.5).getBoundingBoxes()) {
-            for (Entity entity1 : getWorld().getOtherEntities(this, box.expand(1.0E-7, 0.15, 1.0E-7), EntityPredicates.EXCEPT_SPECTATOR.and(entity -> !(entity instanceof AbstractDecorationEntity)))) {
+            for (Entity entity1 : getEntityWorld().getOtherEntities(this, box.expand(1.0E-7, 0.15, 1.0E-7), EntityPredicates.EXCEPT_SPECTATOR.and(entity -> !(entity instanceof AbstractDecorationEntity)))) {
                 entities.put(entity1, box);
             }
         }
@@ -340,12 +340,12 @@ public class MovingRopeEntity extends RectangularEntity implements VoxelShapedEn
             for (Map.Entry<Vec3i, BlockState> entry : blocks.entrySet()) {
                 BlockPos blockPos = pos.add(entry.getKey());
                 BlockState state = entry.getValue();
-                if (state.canPlaceAt(getWorld(), blockPos)) {
-                    if (getWorld().setBlockState(blockPos, state, Block.NOTIFY_ALL)) {
-                        ((ServerWorld) this.getWorld()).getChunkManager().sendToOtherNearbyPlayers(this, new BlockUpdateS2CPacket(blockPos, this.getWorld().getBlockState(blockPos)));
+                if (state.canPlaceAt(getEntityWorld(), blockPos)) {
+                    if (getEntityWorld().setBlockState(blockPos, state, Block.NOTIFY_ALL)) {
+                        ((ServerWorld) this.getEntityWorld()).getChunkManager().sendToOtherNearbyPlayers(this, new BlockUpdateS2CPacket(blockPos, this.getEntityWorld().getBlockState(blockPos)));
                     }
                     if (blockEntities.containsKey(entry.getKey())) {
-                        BlockEntity blockEntity = getWorld().getBlockEntity(blockPos);
+                        BlockEntity blockEntity = getEntityWorld().getBlockEntity(blockPos);
                         if (blockEntity != null) {
                             NbtCompound tag = blockEntities.get(entry.getKey());
                             blockEntity.read(tag, getRegistryManager());
@@ -371,12 +371,12 @@ public class MovingRopeEntity extends RectangularEntity implements VoxelShapedEn
     }
 
     private boolean done() {
-        if (getWorld().isClient) {
+        if (getEntityWorld().isClient()) {
             return false;
         }
-        BlockEntity blockEntity = getWorld().getBlockEntity(getPulleyPos());
+        BlockEntity blockEntity = getEntityWorld().getBlockEntity(getPulleyPos());
         if (blockEntity instanceof PulleyBlockEntity pulleyBlockEntity) {
-            if (!pulleyBlockEntity.onJobCompleted(getWorld(), getPulleyPos(), getWorld().getBlockState(getPulleyPos()), isMovingUp(), getTargetY())) {
+            if (!pulleyBlockEntity.onJobCompleted(getEntityWorld(), getPulleyPos(), getEntityWorld().getBlockState(getPulleyPos()), isMovingUp(), getTargetY())) {
                 reconstruct();
                 return true;
             }

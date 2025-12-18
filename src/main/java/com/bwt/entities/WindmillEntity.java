@@ -91,7 +91,7 @@ public class WindmillEntity extends HorizontalMechPowerSourceEntity {
 
     @Override
     public Predicate<BlockPos> getBlockInterferencePredicate() {
-        return blockPos -> !getWorld().getBlockState(blockPos).isIn(BlockTags.AIR);
+        return blockPos -> !getEntityWorld().getBlockState(blockPos).isIn(BlockTags.AIR);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class WindmillEntity extends HorizontalMechPowerSourceEntity {
 
     @Override
     public float computeRotation() {
-        World world = getWorld();
+        World world = getEntityWorld();
         // Nether
         if (world.getDimension().ultrawarm()) {
             return rotationPerTickInNether;
@@ -158,7 +158,7 @@ public class WindmillEntity extends HorizontalMechPowerSourceEntity {
 
     protected void breakConnectedGearBoxes() {
         BlockPos hostAxlePos = getBlockPos();
-        BlockState hostAxleState = getWorld().getBlockState(hostAxlePos);
+        BlockState hostAxleState = getEntityWorld().getBlockState(hostAxlePos);
 
         // Bad block type
         if (!hostAxleState.isOf(BwtBlocks.axleBlock) && !hostAxleState.isOf(BwtBlocks.axlePowerSourceBlock)) {
@@ -169,7 +169,7 @@ public class WindmillEntity extends HorizontalMechPowerSourceEntity {
             for (int i = 1; i <= 4; i++) {
                 Direction direction = Direction.from(hostAxleAxis, axisDirection);
                 BlockPos connectedPos = hostAxlePos.offset(direction, i);
-                BlockState connectedState = getWorld().getBlockState(connectedPos);
+                BlockState connectedState = getEntityWorld().getBlockState(connectedPos);
                 if (
                         connectedState.getBlock() instanceof GearBoxBlock gearBoxBlock
                         // Receiving power from this axle
@@ -177,7 +177,7 @@ public class WindmillEntity extends HorizontalMechPowerSourceEntity {
                         // Not switched off
                         && gearBoxBlock.isMechPowered(connectedState)
                 ) {
-                    GearBoxBlock.breakGearBox(getWorld(), connectedPos);
+                    GearBoxBlock.breakGearBox(getEntityWorld(), connectedPos);
                     break;
                 }
                 if (!connectedState.isOf(BwtBlocks.axleBlock) && !connectedState.isOf(BwtBlocks.axlePowerSourceBlock)) {

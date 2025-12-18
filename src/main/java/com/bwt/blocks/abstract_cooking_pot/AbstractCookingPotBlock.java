@@ -13,7 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.ItemScatterer;
@@ -33,7 +33,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public abstract class AbstractCookingPotBlock extends BlockWithEntity implements MechPowerBlockBase {
-    public static final DirectionProperty TIP_DIRECTION = DirectionProperty.of("tip_direction", direction -> direction != Direction.DOWN);
+    public static final EnumProperty<Direction> TIP_DIRECTION = EnumProperty.of("tip_direction", Direction.class, direction -> direction != Direction.DOWN);
 
     public static Box box1 = new Box(1, 0, 1, 15, 16, 15);
     public static Box box2 = new Box(0, 2, 0, 16, 14, 16);

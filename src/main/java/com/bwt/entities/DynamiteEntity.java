@@ -14,21 +14,25 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.LootTables;
-import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.loot.context.LootContextTypes;
+import net.minecraft.loot.context.LootWorldContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 public class DynamiteEntity extends ProjectileEntity implements FlyingItemEntity {
 
@@ -59,24 +63,20 @@ public class DynamiteEntity extends ProjectileEntity implements FlyingItemEntity
     }
 
     @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
-        nbt.putInt("fuse", getFuse());
+    protected void writeCustomData(WriteView view) {
+        super.writeCustomData(view);
+        view.putInt("fuse", getFuse());
         ItemStack itemStack = getItem();
         if (!itemStack.isEmpty()) {
-            nbt.put("Item", itemStack.encode(getRegistryManager()));
+            view.put("Item", ItemStack.CODEC, itemStack);
         }
     }
 
     @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
-        setFuse(nbt.getInt("fuse"));
-        if (nbt.contains("Item", NbtElement.COMPOUND_TYPE)) {
-            setItem(ItemStack.fromNbt(getRegistryManager(), nbt.getCompound("Item")).orElseGet(() -> new ItemStack(getDefaultItem())));
-        } else {
-            setItem(new ItemStack(getDefaultItem()));
-        }
+    protected void readCustomData(ReadView view) {
+        super.readCustomData(view);
+        setFuse(view.getInt("fuse", getFuse()));
+        setItem(view.read("Item", ItemStack.CODEC).orElse(getDefaultItem().getDefaultStack()));
     }
 
     @Override
@@ -138,14 +138,14 @@ public class DynamiteEntity extends ProjectileEntity implements FlyingItemEntity
         if (fuse > 0) {
             setFuse(fuse - 1);
             fuse--;
-            if (getWorld().isClient) {
-                getWorld().addParticle(ParticleTypes.SMOKE, this.getX(), this.getY() + 0.5, this.getZ(), getVelocity().getX() * 0.1, getVelocity().getY() * 0.1, getVelocity().getZ() * 0.1);
+            if (getEntityWorld().isClient()) {
+                getEntityWorld().addParticleClient(ParticleTypes.SMOKE, this.getX(), this.getY() + 0.5, this.getZ(), getVelocity().getX() * 0.1, getVelocity().getY() * 0.1, getVelocity().getZ() * 0.1);
             }
         }
 
         if (fuse == 0) {
             discard();
-            if (!getWorld().isClient) {
+            if (!getEntityWorld().isClient()) {
                 explode();
             }
             return;
@@ -155,7 +155,7 @@ public class DynamiteEntity extends ProjectileEntity implements FlyingItemEntity
             if (this.isInLava()) {
                 ignite();
                 discard();
-                if (!getWorld().isClient) {
+                if (!getEntityWorld().isClient()) {
                     explode();
                 }
                 return;
@@ -163,7 +163,7 @@ public class DynamiteEntity extends ProjectileEntity implements FlyingItemEntity
             if (isOnGround()) {
                 if (getVelocity().length() < 0.01) {
                     // The dynamite has come to a stop. Convert it to an item.
-                    if (!getWorld().isClient) {
+                    if (!getEntityWorld().isClient()) {
                         convertToItem();
                         return;
                     }
@@ -173,7 +173,7 @@ public class DynamiteEntity extends ProjectileEntity implements FlyingItemEntity
     }
 
     public void explode() {
-        this.getWorld().createExplosion(this, this.getX(), this.getBodyY(0.0625), this.getZ(), 1.5f, World.ExplosionSourceType.TNT);
+        this.getEntityWorld().createExplosion(this, this.getX(), this.getBodyY(0.0625), this.getZ(), 1.5f, World.ExplosionSourceType.TNT);
         if (isSubmergedInWater()) {
             redneckFish();
         }
@@ -202,32 +202,35 @@ public class DynamiteEntity extends ProjectileEntity implements FlyingItemEntity
         return Arrays.stream(Direction.values())
                 .filter(direction -> direction != Direction.UP)
                 .map(pos::offset)
-                .map(offsetPos -> getWorld().getFluidState(offsetPos))
+                .map(offsetPos -> getEntityWorld().getFluidState(offsetPos))
                 .allMatch(fluidState -> fluidState.isIn(FluidTags.WATER));
     }
 
     private void spawnRedneckFish(BlockPos pos) {
-        if (!(getWorld() instanceof ServerWorld serverWorld)) {
+        if (!(getEntityWorld() instanceof ServerWorld serverWorld)) {
             return;
         }
-        LootContextParameterSet lootContextParameterSet = new LootContextParameterSet.Builder(serverWorld)
-                .add(LootContextParameters.ORIGIN, this.getPos())
+        LootWorldContext lootContextParameterSet = new LootWorldContext.Builder(serverWorld)
+                .add(LootContextParameters.ORIGIN, this.getEntityPos())
                 .add(LootContextParameters.THIS_ENTITY, this)
                 .add(LootContextParameters.DAMAGE_SOURCE, BwtDamageTypes.of(serverWorld, DamageTypes.EXPLOSION))
                 .build(LootContextTypes.ENTITY);
-        LootTable lootTable = serverWorld.getServer().getReloadableRegistries().getLootTable(LootTables.FISHING_FISH_GAMEPLAY);
-        ObjectArrayList<ItemStack> list = lootTable.generateLoot(lootContextParameterSet);
-        if (list.isEmpty()) {
+        Optional<ObjectArrayList<ItemStack>> optionalItems = Optional.ofNullable(serverWorld.getServer())
+                .map(MinecraftServer::getReloadableRegistries)
+                .map(reg -> reg.getLootTable(LootTables.FISHING_FISH_GAMEPLAY))
+                .map(table -> table.generateLoot(lootContextParameterSet));
+        if (optionalItems.isEmpty()) {
             return;
         }
-        ItemStack itemStack = list.get(random.nextInt(list.size()));
+        ObjectArrayList<ItemStack> itemList = optionalItems.get();
+        ItemStack itemStack = itemList.get(random.nextInt(itemList.size()));
         if (!itemStack.isIn(ItemTags.FISHES)) return;
         ItemEntity itemEntity = new ItemEntity(serverWorld, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, itemStack);
-        this.getWorld().spawnEntity(itemEntity);
+        this.getEntityWorld().spawnEntity(itemEntity);
     }
 
     private void convertToItem() {
-        ItemScatterer.spawn(getWorld(), getX(), getY(), getZ(), getStack());
+        ItemScatterer.spawn(getEntityWorld(), getX(), getY(), getZ(), getStack());
         discard();
     }
 }

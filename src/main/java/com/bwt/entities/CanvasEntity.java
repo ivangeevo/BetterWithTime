@@ -16,12 +16,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.world.rule.GameRules;
 import org.jetbrains.annotations.Nullable;
 
 public class CanvasEntity extends PaintingEntity {
@@ -41,11 +42,11 @@ public class CanvasEntity extends PaintingEntity {
     }
 
     @Override
-    public void onBreak(@Nullable Entity breaker) {
-        if (this.getWorld().getGameRules().getBoolean(GameRules.DO_ENTITY_DROPS)) {
+    public void onBreak(ServerWorld world, @org.jspecify.annotations.Nullable Entity breaker) {
+        if (world.getGameRules().getValue(GameRules.ENTITY_DROPS)) {
             this.playSound(SoundEvents.ENTITY_PAINTING_BREAK, 1.0F, 1.0F);
             if (!(breaker instanceof PlayerEntity playerEntity && playerEntity.isInCreativeMode())) {
-                this.dropItem(BwtItems.canvasItem);
+                this.dropItem(world, BwtItems.canvasItem);
             }
         }
     }
@@ -53,7 +54,7 @@ public class CanvasEntity extends PaintingEntity {
     public static Optional<CanvasEntity> placeCanvas(World world, BlockPos pos, Direction facing) {
         CanvasEntity canvasEntity = new CanvasEntity(world, pos);
         List<RegistryEntry<PaintingVariant>> paintingVariants = new ArrayList<>();
-        world.getRegistryManager().get(RegistryKeys.PAINTING_VARIANT).iterateEntries(BwtPaintingVariantTags.CANVAS_PLACEABLE).forEach(paintingVariants::add);
+        world.getRegistryManager().getOrThrow(RegistryKeys.PAINTING_VARIANT).iterateEntries(BwtPaintingVariantTags.CANVAS_PLACEABLE).forEach(paintingVariants::add);
         if (paintingVariants.isEmpty()) {
             return Optional.empty();
         }

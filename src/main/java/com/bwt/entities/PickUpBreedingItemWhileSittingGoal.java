@@ -40,7 +40,7 @@ public class PickUpBreedingItemWhileSittingGoal extends Goal {
 
     @Nullable
     protected ItemEntity findClosestBreedingItem() {
-        return animal.getWorld()
+        return animal.getEntityWorld()
                 .getEntitiesByClass(
                         ItemEntity.class,
                         animal.getBoundingBox().expand(searchRadius),

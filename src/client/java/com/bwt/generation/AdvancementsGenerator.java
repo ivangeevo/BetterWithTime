@@ -13,6 +13,7 @@ import net.minecraft.advancement.criterion.ItemCriterion;
 import net.minecraft.advancement.criterion.SummonedEntityCriterion;
 import net.minecraft.advancement.criterion.TickCriterion;
 import net.minecraft.block.*;
+import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.Items;
@@ -23,6 +24,8 @@ import net.minecraft.predicate.entity.EntityPredicate;
 import net.minecraft.predicate.entity.LocationPredicate;
 import net.minecraft.predicate.item.*;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryEntryLookup;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
@@ -30,6 +33,7 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -42,7 +46,9 @@ public class AdvancementsGenerator extends FabricAdvancementProvider {
     }
 
     @Override
-    public void generateAdvancement(RegistryWrapper.WrapperLookup registryLookup, Consumer<AdvancementEntry> consumer) {
+    public void generateAdvancement(RegistryWrapper.@NonNull WrapperLookup registryLookup, @NonNull Consumer<AdvancementEntry> consumer) {
+        RegistryWrapper<EntityType<?>> entityTypeLookup = registryLookup.getOrThrow(RegistryKeys.ENTITY_TYPE);
+        RegistryEntryLookup<Item> itemLookup = registryLookup.getOrThrow(RegistryKeys.ITEM);
         AdvancementEntry rootAdvancement = Advancement.Builder.create()
                 .display(
                         BwtBlocks.companionCubeBlock,
@@ -77,7 +83,7 @@ public class AdvancementsGenerator extends FabricAdvancementProvider {
                         true,
                         false
                 )
-                .criterion("placed_windmill", SummonedEntityCriterion.Conditions.create(EntityPredicate.Builder.create().type(BwtEntities.windmillEntity)))
+                .criterion("placed_windmill", SummonedEntityCriterion.Conditions.create(EntityPredicate.Builder.create().type(entityTypeLookup, BwtEntities.windmillEntity)))
                 .build(consumer, Id.MOD_ID + "/placed_windmill");
 
         AdvancementEntry cauldronAdvancement = blockPlacedAdvancement(
@@ -109,7 +115,8 @@ public class AdvancementsGenerator extends FabricAdvancementProvider {
                 BwtBlocks.cornerBlocks.stream().filter(cornerBlock -> cornerBlock.fullBlock == Blocks.OAK_PLANKS).findFirst().orElseThrow(),
                 BwtItemTags.WOODEN_CORNER_BLOCKS,
                 "Cut my Block Into Pieces",
-                "Use the saw to chop a plank down into corners. Maybe these smaller pieces can be used more efficiently!"
+                "Use the saw to chop a plank down into corners. Maybe these smaller pieces can be used more efficiently!",
+                itemLookup
         ).parent(sawAdvancement).build(consumer, Id.MOD_ID + "/got_wooden_corner");
         AdvancementEntry hopperAdvancement = blockPlacedAdvancement(
                 BwtBlocks.hopperBlock,
@@ -159,7 +166,7 @@ public class AdvancementsGenerator extends FabricAdvancementProvider {
                         true,
                         false
                 )
-                .criterion("placed_water_wheel", SummonedEntityCriterion.Conditions.create(EntityPredicate.Builder.create().type(BwtEntities.waterWheelEntity)))
+                .criterion("placed_water_wheel", SummonedEntityCriterion.Conditions.create(EntityPredicate.Builder.create().type(entityTypeLookup, BwtEntities.waterWheelEntity)))
                 .build(consumer, Id.MOD_ID + "/placed_water_wheel");
         AdvancementEntry kilnAdvancement = itemAdvancement(
                 Blocks.BRICKS,
@@ -212,7 +219,7 @@ public class AdvancementsGenerator extends FabricAdvancementProvider {
         return itemAdvancement(item, title, description, item);
     }
 
-    public Advancement.Builder itemTagAdvancement(ItemConvertible displayItem, TagKey<Item> itemTag, String title, String description) {
+    public Advancement.Builder itemTagAdvancement(ItemConvertible displayItem, TagKey<Item> itemTag, String title, String description, RegistryEntryLookup<Item> itemLookup) {
         return Advancement.Builder.create()
                 .display(
                         displayItem, // The display icon
@@ -224,7 +231,7 @@ public class AdvancementsGenerator extends FabricAdvancementProvider {
                         true, // Announce to chat
                         false // Hidden in the advancement tab
                 )
-                .criterion("got_" + itemTag.id().getPath(), InventoryChangedCriterion.Conditions.items(ItemPredicate.Builder.create().tag(BwtItemTags.WOODEN_CORNER_BLOCKS)));
+                .criterion("got_" + itemTag.id().getPath(), InventoryChangedCriterion.Conditions.items(ItemPredicate.Builder.create().tag(itemLookup, BwtItemTags.WOODEN_CORNER_BLOCKS)));
     }
 
     public Advancement.Builder blockPlacedAdvancement(Block block, String title, String description, AdvancementCriterion<?> criterion) {

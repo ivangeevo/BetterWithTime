@@ -23,6 +23,7 @@ import net.minecraft.predicate.entity.EntitySubPredicateTypes;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -32,13 +33,15 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.EntityExplosionBehavior;
 import net.minecraft.world.explosion.Explosion;
 import net.minecraft.world.explosion.ExplosionBehavior;
+import net.minecraft.world.explosion.ExplosionImpl;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class MiningChargeExplosion extends Explosion {
+public class MiningChargeExplosion extends ExplosionImpl {
     public static final LootCondition LOOT_CONDITION = EntityPropertiesLootCondition.builder(
-            LootContext.EntityTarget.THIS,
+            LootContext.THIS,
             EntityPredicate.Builder.create().type(BwtEntities.miningChargeEntity)
     ).build();
 
@@ -47,8 +50,17 @@ public class MiningChargeExplosion extends Explosion {
     protected final MiningChargeEntity miningChargeEntity;
     protected final DamageSource damageSource;
 
-    public MiningChargeExplosion(World world, @NotNull MiningChargeEntity entity, Vec3d pos, DamageSource damageSource, float power, boolean createFire, DestructionType destructionType, ParticleEffect particle, ParticleEffect emitterParticle, RegistryEntry<SoundEvent> soundEvent) {
-        super(world, entity, damageSource, null, pos.x, pos.y, pos.z, power, createFire, destructionType, particle, emitterParticle, soundEvent);
+    public MiningChargeExplosion(
+            ServerWorld world,
+            @NotNull MiningChargeEntity entity,
+            @Nullable DamageSource damageSource,
+            @Nullable ExplosionBehavior behavior,
+            Vec3d pos,
+            float power,
+            boolean createFire,
+            Explosion.DestructionType destructionType
+    ) {
+        super(world, entity, damageSource, behavior, pos, power, createFire, destructionType);
         this.world = world;
         this.behavior = new EntityExplosionBehavior(entity);
         this.miningChargeEntity = entity;

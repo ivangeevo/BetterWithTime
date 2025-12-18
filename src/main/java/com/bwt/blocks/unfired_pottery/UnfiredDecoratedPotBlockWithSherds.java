@@ -22,7 +22,6 @@ import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
@@ -41,7 +40,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class UnfiredDecoratedPotBlockWithSherds extends UnfiredPotteryBlock implements BlockEntityProvider {
-    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction>FACING = Properties.HORIZONTAL_FACING;
     public static final MapCodec<UnfiredDecoratedPotBlockWithSherds> CODEC = createCodec(UnfiredDecoratedPotBlockWithSherds::new);
 
     public UnfiredDecoratedPotBlockWithSherds(Settings settings) {

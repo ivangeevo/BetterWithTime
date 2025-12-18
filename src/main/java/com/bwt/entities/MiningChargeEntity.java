@@ -5,6 +5,7 @@ import com.bwt.blocks.mining_charge.MiningChargeBlock;
 import com.bwt.blocks.mining_charge.MiningChargeExplosion;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -20,9 +21,9 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.rule.GameRules;
 import org.jetbrains.annotations.Nullable;
 
 public class MiningChargeEntity extends Entity implements Ownable {
@@ -88,6 +89,11 @@ public class MiningChargeEntity extends Entity implements Ownable {
     }
 
     @Override
+    public boolean damage(ServerWorld world, DamageSource source, float amount) {
+        return false;
+    }
+
+    @Override
     public boolean canHit() {
         return !this.isRemoved();
     }
@@ -97,7 +103,7 @@ public class MiningChargeEntity extends Entity implements Ownable {
         if (attachedToBlock) {
             // make sure we're still attached
             BlockPos attachedBlockPos = getBlockPos().offset(getFacing().getOpposite());
-            attachedToBlock = getWorld().getBlockState(attachedBlockPos).isSideSolidFullSquare(getWorld(), attachedBlockPos, getFacing());
+            attachedToBlock = getEntityWorld().getBlockState(attachedBlockPos).isSideSolidFullSquare(getEntityWorld(), attachedBlockPos, getFacing());
         }
         if (!attachedToBlock) {
             if (getFacing() == Direction.DOWN) {
@@ -109,13 +115,13 @@ public class MiningChargeEntity extends Entity implements Ownable {
         this.setFuse(i);
         if (i <= 0) {
             this.discard();
-            if (!this.getWorld().isClient) {
-                this.explode();
+            if (this.getEntityWorld() instanceof ServerWorld serverWorld) {
+                this.explode(serverWorld);
             }
         } else {
             this.updateWaterState();
-            if (this.getWorld().isClient) {
-                this.getWorld().addParticle(ParticleTypes.SMOKE, this.getX(), this.getY() + 0.5, this.getZ(), 0.0, 0.0, 0.0);
+            if (this.getEntityWorld().isClient()) {
+                this.getEntityWorld().addParticleClient(ParticleTypes.SMOKE, this.getX(), this.getY() + 0.5, this.getZ(), 0.0, 0.0, 0.0);
             }
         }
     }
@@ -131,19 +137,19 @@ public class MiningChargeEntity extends Entity implements Ownable {
         }
     }
 
-    private void explode() {
-//        this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), 6.0f, World.ExplosionSourceType.NONE);
-        createMiningChargeExplosion(6.0f);
+    private void explode(ServerWorld serverWorld) {
+//        this.serverWorld.createExplosion(this, this.getX(), this.getY(), this.getZ(), 6.0f, World.ExplosionSourceType.NONE);
+        createMiningChargeExplosion(serverWorld, 6.0f);
     }
 
-    public void createMiningChargeExplosion(float power) {
-        Explosion.DestructionType destructionType = getWorld().getGameRules().getBoolean(GameRules.TNT_EXPLOSION_DROP_DECAY) ? Explosion.DestructionType.DESTROY_WITH_DECAY : Explosion.DestructionType.DESTROY;
+    public void createMiningChargeExplosion(ServerWorld serverWorld, float power) {
+        Explosion.DestructionType destructionType = serverWorld.getGameRules().getValue(GameRules.TNT_EXPLOSION_DROP_DECAY) ? Explosion.DestructionType.DESTROY_WITH_DECAY : Explosion.DestructionType.DESTROY;
         Vec3d offsetPos = this.getBlockPos().offset(getFacing().getOpposite()).toCenterPos();
         Explosion explosion = new MiningChargeExplosion(
-                getWorld(),
+                serverWorld,
                 this,
                 offsetPos,
-                Explosion.createDamageSource(getWorld(), this),
+                Explosion.createDamageSource(serverWorld, this),
                 power,
                 false,
                 destructionType,
@@ -153,14 +159,12 @@ public class MiningChargeEntity extends Entity implements Ownable {
         );
         explosion.collectBlocksAndDamageEntities();
         explosion.affectWorld(true);
-        if (getWorld() instanceof ServerWorld serverWorld) {
-            if (!explosion.shouldDestroy()) {
-                explosion.clearAffectedBlocks();
-            }
-            for (ServerPlayerEntity serverPlayerEntity : serverWorld.getPlayers()) {
-                if (!(serverPlayerEntity.squaredDistanceTo(getX(), getY(), getZ()) < 4096.0)) continue;
-                serverPlayerEntity.networkHandler.sendPacket(new ExplosionS2CPacket(getX(), getY(), getZ(), power, explosion.getAffectedBlocks(), explosion.getAffectedPlayers().get(serverPlayerEntity), explosion.getDestructionType(), explosion.getParticle(), explosion.getEmitterParticle(), explosion.getSoundEvent()));
-            }
+        if (!explosion.shouldDestroy()) {
+            explosion.clearAffectedBlocks();
+        }
+        for (ServerPlayerEntity serverPlayerEntity : serverWorld.getPlayers()) {
+            if (!(serverPlayerEntity.squaredDistanceTo(getX(), getY(), getZ()) < 4096.0)) continue;
+            serverPlayerEntity.networkHandler.sendPacket(new ExplosionS2CPacket(getX(), getY(), getZ(), power, explosion.getAffectedBlocks(), explosion.getAffectedPlayers().get(serverPlayerEntity), explosion.getDestructionType(), explosion.getParticle(), explosion.getEmitterParticle(), explosion.getSoundEvent()));
         }
     }
 
@@ -175,7 +179,7 @@ public class MiningChargeEntity extends Entity implements Ownable {
     protected void readCustomDataFromNbt(NbtCompound nbt) {
         setFuse(nbt.getShort("fuse"));
         if (nbt.contains("block_state", NbtElement.COMPOUND_TYPE)) {
-            this.setBlockState(NbtHelper.toBlockState(this.getWorld().createCommandRegistryWrapper(RegistryKeys.BLOCK), nbt.getCompound("block_state")));
+            this.setBlockState(NbtHelper.toBlockState(this.getEntityWorld().createCommandRegistryWrapper(RegistryKeys.BLOCK), nbt.getCompound("block_state")));
         }
         setFacing(Direction.byId(nbt.getInt("facing")));
     }
